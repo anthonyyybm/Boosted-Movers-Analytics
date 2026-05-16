@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Boosted Movers Analytics</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%231a7a4a'/><text y='.9em' font-size='52' font-family='system-ui' font-weight='700' fill='white' x='12' y='68'>BM</text></svg>">
+  <style>
+    :root {
+      --bg: #0f1410; --surface: #161e18; --border: #2a3c2e;
+      --text: #e8f0ea; --text2: #7a9a82; --text3: #4a6a52;
+      --accent: #22c55e; --radius: 10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--accent); }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: 48px; background: var(--surface);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .logo-mark { width: 30px; height: 30px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .logo-text { font-size: 13px; font-weight: 600; color: var(--text); }
+    .main { max-width: 760px; margin: 0 auto; padding: 40px 16px 60px; }
+    h1 { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .last-updated { font-size: 12px; color: var(--text3); margin-bottom: 32px; }
+    h2 { font-size: 16px; font-weight: 700; color: var(--text); margin: 28px 0 8px; }
+    p { color: var(--text2); margin-bottom: 12px; }
+    ul { color: var(--text2); padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    .highlight-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; margin: 16px 0; }
+    .highlight-box p { margin-bottom: 0; }
+    .site-footer { border-top: 1px solid var(--border); padding: 24px 16px; text-align: center; background: var(--surface); }
+    .site-footer p { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+    .site-footer a { color: var(--text2); font-size: 12px; margin: 0 10px; text-decoration: underline; text-underline-offset: 3px; }
+    .site-footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark">BM</div>
+    <span class="logo-text">Boosted Movers Analytics</span>
+  </div>
+</header>
+
+<main class="main">
+  <h1>Privacy Policy</h1>
+  <div class="last-updated">Last updated: May 17, 2026</div>
+
+  <div class="highlight-box">
+    <p><strong>Summary:</strong> We collect only the TikTok data needed to display your analytics. Your data is stored locally in your browser. We do not sell, share, or retain your data on our servers beyond the secure token exchange process.</p>
+  </div>
+
+  <p>Boosted Movers Analytics ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect information when you use our TikTok analytics application.</p>
+
+  <h2>1. Information We Collect</h2>
+  <p>When you connect your TikTok account, we request the following data via TikTok's official API:</p>
+  <ul>
+    <li><strong>Profile information:</strong> Your TikTok display name, username, and profile picture URL.</li>
+    <li><strong>Account statistics:</strong> Your public follower count, following count, and total likes received.</li>
+    <li><strong>Video data:</strong> A list of your posted videos including titles, cover image URLs, view counts, like counts, comment counts, and publish timestamps.</li>
+    <li><strong>Access token:</strong> A temporary OAuth access token used to retrieve the above data from TikTok's API.</li>
+  </ul>
+  <p>We do not collect your TikTok password, email address, private messages, or any data beyond the scopes listed above.</p>
+
+  <h2>2. How We Use Your Information</h2>
+  <p>The information we collect is used exclusively to:</p>
+  <ul>
+    <li>Display your TikTok analytics within the application (follower counts, video performance, engagement metrics, growth trends).</li>
+    <li>Calculate derived statistics such as average views, engagement rates, and monthly performance summaries.</li>
+    <li>Build a local follower history to show growth sparklines across sessions.</li>
+  </ul>
+  <p>We do not use your data for advertising, profiling, or any purpose beyond what is described above.</p>
+
+  <h2>3. Data Storage</h2>
+  <p>Your data is stored exclusively in your browser's <strong>localStorage</strong> on your own device. This includes:</p>
+  <ul>
+    <li>Your TikTok access token (used to re-load data on return visits).</li>
+    <li>Your follower count history (used to generate sparklines).</li>
+  </ul>
+  <p>We do not maintain a backend database of your TikTok data. When you clear your browser storage or click "Disconnect," all stored data is immediately deleted.</p>
+
+  <h2>4. Token Exchange Proxy</h2>
+  <p>When you complete TikTok OAuth authorization, TikTok issues a temporary authorization code. To exchange this code for an access token, we use a secure server-side proxy hosted on Supabase. This proxy:</p>
+  <ul>
+    <li>Receives the authorization code and your redirect URI.</li>
+    <li>Exchanges them with TikTok's API for an access token.</li>
+    <li>Returns the access token directly to your browser.</li>
+    <li>Does <strong>not</strong> log, store, or retain your access token or authorization code.</li>
+  </ul>
+
+  <h2>5. Data Sharing</h2>
+  <p>We do not sell, trade, rent, or share your personal information or TikTok data with any third parties, except:</p>
+  <ul>
+    <li><strong>TikTok:</strong> Data is retrieved directly from TikTok's API on your behalf.</li>
+    <li><strong>Supabase:</strong> Used solely as a secure token exchange proxy (no data retention).</li>
+    <li><strong>Legal requirements:</strong> We may disclose information if required by law or in response to valid legal process.</li>
+  </ul>
+
+  <h2>6. Data Retention</h2>
+  <p>Since all data is stored in your browser's localStorage, you control the retention completely. Data is retained until you:</p>
+  <ul>
+    <li>Click "Disconnect" in the application (clears all TikTok data from localStorage).</li>
+    <li>Clear your browser's localStorage or cookies.</li>
+    <li>Revoke access in your TikTok account settings (this invalidates the token but does not automatically clear localStorage).</li>
+  </ul>
+
+  <h2>7. Cookies and Tracking</h2>
+  <p>We do not use cookies, tracking pixels, analytics scripts (such as Google Analytics), or any third-party tracking technologies on this application. The only browser storage used is localStorage for the purposes described in this policy.</p>
+
+  <h2>8. Children's Privacy</h2>
+  <p>This Service is not directed to children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us and we will take steps to delete such information.</p>
+
+  <h2>9. Security</h2>
+  <p>We implement reasonable technical measures to protect your data, including using HTTPS for all communications, a server-side proxy to avoid exposing API secrets client-side, and not storing any sensitive data on our servers. However, no method of transmission over the internet is 100% secure.</p>
+
+  <h2>10. Your Rights and Controls</h2>
+  <p>You have full control over your data:</p>
+  <ul>
+    <li><strong>Access:</strong> All data is displayed directly in the application.</li>
+    <li><strong>Deletion:</strong> Click "Disconnect" to immediately delete all stored data.</li>
+    <li><strong>Revocation:</strong> Revoke access anytime in your TikTok app settings under "Apps & Websites."</li>
+  </ul>
+
+  <h2>11. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated "Last updated" date. We encourage you to review this policy periodically.</p>
+
+  <h2>12. Contact Us</h2>
+  <p>If you have any questions, concerns, or requests regarding this Privacy Policy, please contact us at:</p>
+  <p><strong>Boosted Movers</strong><br>
+  Email: <a href="mailto:anthony@boostedmovers.com">anthony@boostedmovers.com</a></p>
+</main>
+
+<footer class="site-footer">
+  <p>&copy; 2026 Boosted Movers. All rights reserved.</p>
+  <div>
+    <a href="/Boosted-Movers-Analytics/">Home</a>
+    <a href="/Boosted-Movers-Analytics/terms/">Terms of Service</a>
+  </div>
+</footer>
+</body>
+</html>
