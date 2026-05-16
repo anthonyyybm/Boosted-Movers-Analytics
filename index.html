@@ -61,7 +61,7 @@
     .metric-fade-in{animation:fadeIn .4s ease}
     .platform-section{padding-bottom:28px;margin-bottom:4px;border-bottom:1px solid var(--border)}
     .platform-section:last-child{border-bottom:none;padding-bottom:0}
-    .platform-badge{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;flex-shrink:0}
+    .platform-badge{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
     .goals-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
     .goals-row{margin-bottom:12px}.goals-row:last-child{margin-bottom:0}
     .goals-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:12px}
@@ -140,7 +140,7 @@
     @media(max-width:600px){.social-platforms-row{grid-template-columns:1fr}}
     .social-platform-cell{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px}
     .social-platform-cell.coming-soon-cell{opacity:.55}
-    .social-cell-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;flex-shrink:0}
+    .social-cell-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
     .social-cell-name{font-size:11px;color:var(--text3);margin-bottom:2px}
     .social-cell-val{font-size:18px;font-weight:700;color:var(--text);line-height:1}
     .social-cell-sub{font-size:10px;color:var(--text3);margin-top:1px}
@@ -178,9 +178,9 @@
 <script>
 // ─── DARK MODE ────────────────────────────────────────────────────
 ;(function(){const s=localStorage.getItem('bma_dark');if(s==='1')document.body.classList.add('dark')})()
-function toggleDark(){const d=document.body.classList.toggle('dark');localStorage.setItem('bma_dark',d?'1':'0');document.getElementById('dark-toggle').textContent=d?'&#9728;&#65039;':'&#127769;'}
+function toggleDark(){const d=document.body.classList.toggle('dark');localStorage.setItem('bma_dark',d?'1':'0');document.getElementById('dark-toggle').innerHTML=d?'&#x2600;&#xFE0F;':'&#x1F319;'}
 document.getElementById('dark-toggle').addEventListener('click',toggleDark)
-;(function(){if(document.body.classList.contains('dark'))document.getElementById('dark-toggle').textContent='&#9728;&#65039;'})()
+;(function(){if(document.body.classList.contains('dark'))document.getElementById('dark-toggle').innerHTML='&#x2600;&#xFE0F;'})()
 
 // ─── TIME ─────────────────────────────────────────────────────────
 function updateTime(){const el=document.getElementById('time-display');if(!el)return;const now=new Date(),pht=new Date(now.getTime()+now.getTimezoneOffset()*60000+8*3600000);el.textContent=pht.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})+' PHT'}
@@ -322,6 +322,17 @@ window.showChartTip=showChartTip
 function hideChartTip(){const t=document.getElementById('chart-tip');if(t)t.style.opacity='0'}
 window.hideChartTip=hideChartTip
 
+// ─── PLATFORM ICONS ───────────────────────────────────────────────
+function platformIcon(key,size){
+  const s=size||32,r=Math.round(s*0.28)
+  const icons={
+    youtube:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}"><rect width="${s}" height="${s}" rx="${r}" fill="#FF0000"/><path d="M${s*.83} ${s*.375}a${s*.083} ${s*.083} 0 0 0-${s*.058}-${s*.058}C${s*.729} ${s*.25} ${s*.5} ${s*.25} ${s*.5} ${s*.25}s-${s*.229} 0-${s*.271} ${s*.067}a${s*.083} ${s*.083} 0 0 0-${s*.058} ${s*.058}C${s*.146} ${s*.417} ${s*.146} ${s*.5} ${s*.146} ${s*.5}s0 ${s*.083} ${s*.025} ${s*.125}a${s*.083} ${s*.083} 0 0 0 ${s*.058} ${s*.058}C${s*.271} ${s*.75} ${s*.5} ${s*.75} ${s*.5} ${s*.75}s${s*.229} 0 ${s*.271}-${s*.067}a${s*.083} ${s*.083} 0 0 0 ${s*.058}-${s*.058}C${s*.854} ${s*.583} ${s*.854} ${s*.5} ${s*.854} ${s*.5}s0-${s*.083}-${s*.021}-${s*.125}zM${s*.417} ${s*.625}v-${s*.25}L${s*.625} ${s*.5}z" fill="white"/></svg>`,
+    tiktok:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}"><rect width="${s}" height="${s}" rx="${r}" fill="#010101"/><path d="M${s*.688} ${s*.344}a${s*.208} ${s*.208} 0 0 1-${s*.129}-${s*.177}V${s*.167}h-${s*.144}v${s*.569}a${s*.183} ${s*.183} 0 1 1-${s*.158}-${s*.18}v${s*.159}a${s*.183} ${s*.183} 0 0 0-${s*.033}-${s*.003} ${s*.183} ${s*.183} 0 1 0 ${s*.183} ${s*.183}V${s*.344}a${s*.35} ${s*.35} 0 0 0 ${s*.199} ${s*.063}v-${s*.144}a${s*.208} ${s*.208} 0 0 1-${s*.042}-${s*.004}l${s*.042} ${s*.085}z" fill="white"/><path d="M${s*.646} ${s*.302}a${s*.208} ${s*.208} 0 0 0 ${s*.128} ${s*.042}" stroke="#69C9D0" stroke-width="${s*.04}" fill="none" stroke-linecap="round"/></svg>`,
+    instagram:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}"><defs><linearGradient id="ig-${size||32}" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect width="${s}" height="${s}" rx="${r}" fill="url(#ig-${size||32})"/><rect x="${s*.229}" y="${s*.229}" width="${s*.542}" height="${s*.542}" rx="${s*.146}" stroke="white" stroke-width="${s*.063}" fill="none"/><circle cx="${s*.5}" cy="${s*.5}" r="${s*.188}" stroke="white" stroke-width="${s*.063}" fill="none"/><circle cx="${s*.688}" cy="${s*.313}" r="${s*.052}" fill="white"/></svg>`
+  }
+  return icons[key]||''
+}
+
 // ─── METRIC CARD AND GOALS ────────────────────────────────────────
 function metricCard(label,value,change,sparkData,color,isLoading){const spark=sparkData?sparklineSVG(sparkData,color):'<div style="width:80px;height:40px"></div>';const display=isLoading?skeletonVal():(typeof value==='string'?value:fmtNum(value));const chg=isLoading?'<div class="a-chg-nil">loading...</div>':changeEl(change);return`<div class="a-metric${isLoading?'':' metric-fade-in'}"><div class="metric-label">${label}</div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px"><div><div class="metric-val">${display}</div>${chg}</div><div style="flex-shrink:0;margin-left:8px;align-self:flex-end">${isLoading?'':spark}</div></div></div>`}
 function goalsCard(goals,color){return`<div class="goals-card"><div class="card-title">APRIL GOALS</div>${goals.map(g=>{const p=Math.min(100,Math.round((g.current/g.target)*100));return`<div class="goals-row"><div class="goals-meta"><span class="goals-label">${g.label}</span><span class="goals-progress">${g.current}/${g.target} (${p}%)</span></div><div class="progress-wrap"><div class="progress-bar" style="width:${p}%;background:${color}"></div></div></div>`}).join('')}</div>`}
@@ -334,10 +345,10 @@ function tiktokBlock(isLoading){
     const av=user.avatar_url?`<img src="${escH(user.avatar_url)}" class="platform-avatar" alt="">`:`<div class="platform-avatar platform-avatar-placeholder" style="background:${c};width:48px;height:48px;border-radius:50%">TT</div>`
     const err=tiktokLiveData.error?`<div class="platform-error-state">&#9888; ${escH(tiktokLiveData.error)}</div>`:''
     const mc=s.mainTab==='trends'?renderTrendsTab('tt',videos,c):renderOverviewContent('tt',user,videos,c,false)
-    return`<div class="platform-section">${err}<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge" style="background:${c}">${cfg.abbr}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="data-badge-live" style="margin-left:0">&#9679; Live API</span><button class="refresh-btn" style="margin-left:auto;font-size:11px;padding:3px 9px" onclick="disconnectTikTok()">Disconnect</button></div><div class="platform-profile-card"><div class="platform-profile-left">${av}<div><div class="platform-display-name">${escH(user.display_name||'TikTok Account')}</div><div class="platform-handle">${videos.length} videos &middot; ${byM.length} month${byM.length!==1?'s':''} of data</div></div></div></div><div class="main-tabs"><button class="main-tab" data-tt-tab="overview" onclick="switchMainTab('tt','overview')" style="${s.mainTab==='overview'?`color:${c};border-bottom-color:${c}`:''}">Overview</button><button class="main-tab" data-tt-tab="trends" onclick="switchMainTab('tt','trends')" style="${s.mainTab==='trends'?`color:${c};border-bottom-color:${c}`:''}">&#128200; Trends</button></div><div id="tt-main-content">${mc}</div></div>`
+    return`<div class="platform-section">${err}<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="data-badge-live" style="margin-left:0">&#9679; Live API</span><button class="refresh-btn" style="margin-left:auto;font-size:11px;padding:3px 9px" onclick="disconnectTikTok()">Disconnect</button></div><div class="platform-profile-card"><div class="platform-profile-left">${av}<div><div class="platform-display-name">${escH(user.display_name||'TikTok Account')}</div><div class="platform-handle">${videos.length} videos &middot; ${byM.length} month${byM.length!==1?'s':''} of data</div></div></div></div><div class="main-tabs"><button class="main-tab" data-tt-tab="overview" onclick="switchMainTab('tt','overview')" style="${s.mainTab==='overview'?`color:${c};border-bottom-color:${c}`:''}">Overview</button><button class="main-tab" data-tt-tab="trends" onclick="switchMainTab('tt','trends')" style="${s.mainTab==='trends'?`color:${c};border-bottom-color:${c}`:''}">&#128200; Trends</button></div><div id="tt-main-content">${mc}</div></div>`
   }
   const oBtn=isLoading?'':`<button class="platform-connect-btn" style="margin-left:auto" onclick="startTikTokOAuth()"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M34.1 7C33.3 10.4 30 13 26.5 13.2V19.8C29.3 19.6 31.8 18.6 33.8 17v10.3C33.8 33.8 28.6 39 22.1 39c-6.5 0-11.7-5.2-11.7-11.7 0-6.3 5-11.4 11.2-11.7v6.6c-2.8.3-5 2.6-5 5.2 0 2.9 2.3 5.2 5.2 5.2 3 0 5.5-2.5 5.5-5.5V7h6.8z" fill="white"/></svg>Connect TikTok</button>`
-  return`<div class="platform-section"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge" style="background:${c}">${cfg.abbr}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span>${oBtn}</div><div class="ag3">${metricCard('FOLLOWERS',d.followers,d.followers_change,d.weekly_data.followers,c,isLoading)}${metricCard('AVG VIEWS',d.avg_views,d.avg_views_change,d.weekly_data.views,c,isLoading)}${metricCard('VIDEOS POSTED',d.videos_this_week,d.videos_change,null,c,isLoading)}</div><div class="ag3" style="margin-bottom:14px">${metricCard('ENGAGEMENT RATE',d.engagement_rate+'%',d.engagement_change,null,c,isLoading)}</div>${goalsCard(d.goals,c)}</div>`
+  return`<div class="platform-section"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span>${oBtn}</div><div class="ag3">${metricCard('FOLLOWERS',d.followers,d.followers_change,d.weekly_data.followers,c,isLoading)}${metricCard('AVG VIEWS',d.avg_views,d.avg_views_change,d.weekly_data.views,c,isLoading)}${metricCard('VIDEOS POSTED',d.videos_this_week,d.videos_change,null,c,isLoading)}</div><div class="ag3" style="margin-bottom:14px">${metricCard('ENGAGEMENT RATE',d.engagement_rate+'%',d.engagement_change,null,c,isLoading)}</div>${goalsCard(d.goals,c)}</div>`
 }
 
 // ─── YOUTUBE BLOCK ────────────────────────────────────────────────
@@ -348,17 +359,17 @@ function youtubeBlock(isLoading){
     const av=ch.avatar_url?`<img src="${escH(ch.avatar_url)}" class="platform-avatar" alt="">`:`<div class="platform-avatar platform-avatar-placeholder" style="background:${c};width:48px;height:48px;border-radius:50%">YT</div>`
     const err=youtubeLiveData.error?`<div class="platform-error-state">&#9888; ${escH(youtubeLiveData.error)}</div>`:''
     const mc=s.mainTab==='trends'?renderTrendsTab('yt',videos,c):renderOverviewContent('yt',ch,videos,c,true)
-    return`<div class="platform-section">${err}<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge" style="background:${c}">${cfg.abbr}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="data-badge-live" style="margin-left:0">&#9679; Live API</span></div><div class="platform-profile-card"><div class="platform-profile-left">${av}<div><div class="platform-display-name">${escH(ch.display_name||'YouTube Channel')}</div><div class="platform-handle">${videos.length} videos fetched &middot; ${byM.length} month${byM.length!==1?'s':''} of data</div></div></div></div><div class="main-tabs"><button class="main-tab" data-yt-tab="overview" onclick="switchMainTab('yt','overview')" style="${s.mainTab==='overview'?`color:${c};border-bottom-color:${c}`:''}">Overview</button><button class="main-tab" data-yt-tab="trends" onclick="switchMainTab('yt','trends')" style="${s.mainTab==='trends'?`color:${c};border-bottom-color:${c}`:''}">&#128200; Trends</button></div><div id="yt-main-content">${mc}</div></div>`
+    return`<div class="platform-section">${err}<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="data-badge-live" style="margin-left:0">&#9679; Live API</span></div><div class="platform-profile-card"><div class="platform-profile-left">${av}<div><div class="platform-display-name">${escH(ch.display_name||'YouTube Channel')}</div><div class="platform-handle">${videos.length} videos fetched &middot; ${byM.length} month${byM.length!==1?'s':''} of data</div></div></div></div><div class="main-tabs"><button class="main-tab" data-yt-tab="overview" onclick="switchMainTab('yt','overview')" style="${s.mainTab==='overview'?`color:${c};border-bottom-color:${c}`:''}">Overview</button><button class="main-tab" data-yt-tab="trends" onclick="switchMainTab('yt','trends')" style="${s.mainTab==='trends'?`color:${c};border-bottom-color:${c}`:''}">&#128200; Trends</button></div><div id="yt-main-content">${mc}</div></div>`
   }
   let sb=''
   if(!isLoading){if(ytDataStatus==='live')sb='<span class="data-badge-live">&#9679; Live</span>';else if(ytDataStatus==='cached')sb='<span class="data-badge-cached">Using cached data</span>'}
-  return`<div class="platform-section"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div class="platform-badge" style="background:${c}">${cfg.abbr}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span>${sb}</div><div class="ag3">${metricCard('SUBSCRIBERS',d.subscribers,d.subscribers_change,d.weekly_data.subscribers,c,isLoading)}${metricCard('AVG VIEWS',d.avg_views,d.avg_views_change,d.weekly_data.views,c,isLoading)}${metricCard('VIDEOS POSTED',d.videos_this_week,d.videos_change,null,c,isLoading)}</div><div class="ag3" style="margin-bottom:14px">${metricCard('ENGAGEMENT RATE',d.engagement_rate+'%',d.engagement_change,null,c,isLoading)}</div>${goalsCard(d.goals,c)}</div>`
+  return`<div class="platform-section"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span>${sb}</div><div class="ag3">${metricCard('SUBSCRIBERS',d.subscribers,d.subscribers_change,d.weekly_data.subscribers,c,isLoading)}${metricCard('AVG VIEWS',d.avg_views,d.avg_views_change,d.weekly_data.views,c,isLoading)}${metricCard('VIDEOS POSTED',d.videos_this_week,d.videos_change,null,c,isLoading)}</div><div class="ag3" style="margin-bottom:14px">${metricCard('ENGAGEMENT RATE',d.engagement_rate+'%',d.engagement_change,null,c,isLoading)}</div>${goalsCard(d.goals,c)}</div>`
 }
 
 // ─── INSTAGRAM BLOCK ──────────────────────────────────────────────
 function instagramBlock(isLoading){
   const cfg=PLATFORMS.instagram,c=cfg.color
-  return`<div class="platform-section coming-soon-section" style="position:relative"><div class="coming-soon-overlay"></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div class="platform-badge" style="background:${c}">${cfg.abbr}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="coming-soon-badge">Coming Soon</span></div><div class="ag3">${metricCard('FOLLOWERS','--',null,null,c,false)}${metricCard('AVG VIEWS','--',null,null,c,false)}${metricCard('REELS POSTED','--',null,null,c,false)}</div><div class="coming-soon-checklist"><div class="card-title" style="margin-bottom:8px">SETUP PROGRESS</div><div class="check-item done">&#9989; Meta Business Suite connected</div><div class="check-item done">&#9989; Facebook account setup</div><div class="check-item pending">&#11036; Developer app approval</div><div class="check-item pending">&#11036; API tokens generated</div><div class="check-item pending">&#11036; Live data connected</div></div></div>`
+  return`<div class="platform-section coming-soon-section" style="position:relative"><div class="coming-soon-overlay"></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="coming-soon-badge">Coming Soon</span></div><div class="ag3">${metricCard('FOLLOWERS','--',null,null,c,false)}${metricCard('AVG VIEWS','--',null,null,c,false)}${metricCard('REELS POSTED','--',null,null,c,false)}</div><div class="coming-soon-checklist"><div class="card-title" style="margin-bottom:8px">SETUP PROGRESS</div><div class="check-item done">&#9989; Meta Business Suite connected</div><div class="check-item done">&#9989; Facebook account setup</div><div class="check-item pending">&#11036; Developer app approval</div><div class="check-item pending">&#11036; API tokens generated</div><div class="check-item pending">&#11036; Live data connected</div></div></div>`
 }
 
 // ─── SOCIAL TOP CARD ──────────────────────────────────────────────
@@ -366,7 +377,7 @@ function socialTopCard(isLoading){
   const yt=analyticsData.platforms.youtube,tt=analyticsData.platforms.tiktok
   const ytV=youtubeLiveData.channel?fmtNum(youtubeLiveData.channel.follower_count||youtubeLiveData.channel.subscriber_count||0):fmtNum(yt.subscribers)
   const ttV=tiktokLiveData.user?fmtNum(tiktokLiveData.user.follower_count):fmtNum(tt.followers)
-  return`<div class="social-top-card"><div class="social-top-header"><span class="social-top-title">Social Media Overview</span><span class="last-refreshed" id="last-refreshed-inline">${lastRefreshedTime?'Updated '+lastRefreshedTime:''}</span></div><div class="social-platforms-row"><div class="social-platform-cell coming-soon-cell"><div class="social-cell-badge" style="background:#E1306C">IG</div><div><div class="social-cell-name">Instagram</div><div class="social-cell-val">--</div><div class="social-cell-sub">Coming Soon</div></div></div><div class="social-platform-cell"><div class="social-cell-badge" style="background:#FF0000">YT</div><div><div class="social-cell-name">YouTube</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ytV}</div><div class="social-cell-sub">subscribers${youtubeLiveData.channel?' &middot; live':''}</div></div></div><div class="social-platform-cell"><div class="social-cell-badge" style="background:#00C2A8">TT</div><div><div class="social-cell-name">TikTok</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ttV}</div><div class="social-cell-sub">followers${tiktokLiveData.user?' &middot; live':''}</div></div></div></div></div>`
+  return`<div class="social-top-card"><div class="social-top-header"><span class="social-top-title">Social Media Overview</span><span class="last-refreshed" id="last-refreshed-inline">${lastRefreshedTime?'Updated '+lastRefreshedTime:''}</span></div><div class="social-platforms-row"><div class="social-platform-cell coming-soon-cell"><div class="social-cell-badge">${platformIcon('instagram',28)}</div><div><div class="social-cell-name">Instagram</div><div class="social-cell-val">--</div><div class="social-cell-sub">Coming Soon</div></div></div><div class="social-platform-cell"><div class="social-cell-badge">${platformIcon('youtube',28)}</div><div><div class="social-cell-name">YouTube</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ytV}</div><div class="social-cell-sub">subscribers${youtubeLiveData.channel?' &middot; live':''}</div></div></div><div class="social-platform-cell"><div class="social-cell-badge">${platformIcon('tiktok',28)}</div><div><div class="social-cell-name">TikTok</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ttV}</div><div class="social-cell-sub">followers${tiktokLiveData.user?' &middot; live':''}</div></div></div></div></div>`
 }
 
 // ─── RENDER DASHBOARD ─────────────────────────────────────────────
@@ -410,17 +421,41 @@ async function loadTikTokFromSession(){if(!ttOAuthToken)return;try{const[user,vi
 async function fetchYouTubeData(){
   if(!YOUTUBE_API_KEY||YOUTUBE_API_KEY.startsWith('%%'))return{success:false}
   try{
-    const[chRes,srRes]=await Promise.all([
-      fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${YOUTUBE_CHANNEL_ID}&key=${YOUTUBE_API_KEY}`),
-      fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${YOUTUBE_CHANNEL_ID}&type=video&order=date&maxResults=50&key=${YOUTUBE_API_KEY}`)
-    ])
+    // Fetch channel info + uploads playlist ID in one call
+    const chRes=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet,contentDetails&id=${YOUTUBE_CHANNEL_ID}&key=${YOUTUBE_API_KEY}`)
     const chData=await chRes.json()
     if(!chData.items?.length)throw new Error('Channel not found')
-    const ch=chData.items[0],srData=await srRes.json()
-    const ids=(srData.items||[]).map(v=>v.id.videoId).filter(Boolean).join(',')
+    const ch=chData.items[0]
+    const uploadsId=ch.contentDetails.relatedPlaylists.uploads
+
+    // Page through the uploads playlist to get ALL video IDs (50 per page, quota: 1 unit/page)
+    let allIds=[],pageToken=''
+    do{
+      const url=`https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId=${uploadsId}&maxResults=50&key=${YOUTUBE_API_KEY}${pageToken?'&pageToken='+pageToken:''}`
+      const r=await fetch(url),data=await r.json()
+      ;(data.items||[]).forEach(i=>allIds.push(i.contentDetails.videoId))
+      pageToken=data.nextPageToken||''
+    }while(pageToken)
+
+    // Fetch stats in batches of 50 (quota: 1 unit/batch)
     let videos=[]
-    if(ids){const vRes=await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${ids}&key=${YOUTUBE_API_KEY}`),vData=await vRes.json();videos=(vData.items||[]).map(v=>({id:v.id,title:v.snippet.title,cover_image_url:v.snippet.thumbnails?.medium?.url||v.snippet.thumbnails?.default?.url||null,view_count:parseInt(v.statistics.viewCount||0),like_count:parseInt(v.statistics.likeCount||0),comment_count:parseInt(v.statistics.commentCount||0),create_time:Math.floor(new Date(v.snippet.publishedAt).getTime()/1000)})).sort((a,b)=>b.create_time-a.create_time)}
-    const sa=Date.now()/1000-7*86400,rc=videos.filter(v=>v.create_time>sa),tv=rc.reduce((s,v)=>s+v.view_count,0),tl=rc.reduce((s,v)=>s+v.like_count,0),tc=rc.reduce((s,v)=>s+v.comment_count,0)
+    for(let i=0;i<allIds.length;i+=50){
+      const batch=allIds.slice(i,i+50).join(',')
+      const vRes=await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${batch}&key=${YOUTUBE_API_KEY}`)
+      const vData=await vRes.json()
+      ;(vData.items||[]).forEach(v=>videos.push({
+        id:v.id,title:v.snippet.title,
+        cover_image_url:v.snippet.thumbnails?.medium?.url||v.snippet.thumbnails?.default?.url||null,
+        view_count:parseInt(v.statistics.viewCount||0),
+        like_count:parseInt(v.statistics.likeCount||0),
+        comment_count:parseInt(v.statistics.commentCount||0),
+        create_time:Math.floor(new Date(v.snippet.publishedAt).getTime()/1000)
+      }))
+    }
+    videos.sort((a,b)=>b.create_time-a.create_time)
+
+    const sa=Date.now()/1000-7*86400,rc=videos.filter(v=>v.create_time>sa)
+    const tv=rc.reduce((s,v)=>s+v.view_count,0),tl=rc.reduce((s,v)=>s+v.like_count,0),tc=rc.reduce((s,v)=>s+v.comment_count,0)
     const channel={display_name:ch.snippet.title,avatar_url:ch.snippet.thumbnails?.default?.url||null,follower_count:parseInt(ch.statistics.subscriberCount||0),subscriber_count:parseInt(ch.statistics.subscriberCount||0),video_count:parseInt(ch.statistics.videoCount||0),view_count:parseInt(ch.statistics.viewCount||0)}
     return{success:true,channel,videos,subscribers:channel.follower_count,avg_views:rc.length?Math.round(tv/rc.length):0,videos_this_week:rc.length,engagement_rate:tv>0?parseFloat(((tl+tc)/tv*100).toFixed(1)):0}
   }catch(err){console.error('YouTube API:',err);return{success:false,error:err.message}}
