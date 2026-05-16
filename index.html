@@ -408,7 +408,7 @@ async function loadTikTokFromSession(){if(!ttOAuthToken)return;try{const[user,vi
 
 // ─── YOUTUBE API ──────────────────────────────────────────────────
 async function fetchYouTubeData(){
-  if(YOUTUBE_API_KEY==='%%YOUTUBE_API_KEY%%'||!YOUTUBE_API_KEY)return{success:false}
+  if(!YOUTUBE_API_KEY||YOUTUBE_API_KEY.startsWith('%%'))return{success:false}
   try{
     const[chRes,srRes]=await Promise.all([
       fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${YOUTUBE_CHANNEL_ID}&key=${YOUTUBE_API_KEY}`),
