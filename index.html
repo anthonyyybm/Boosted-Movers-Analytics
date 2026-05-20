@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="application-name" content="Boosted Movers Analytics">
   <title>Boosted Movers Analytics</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%231a7a4a'/><text y='.9em' font-size='52' font-family='system-ui' font-weight='700' fill='white' x='12' y='68'>BM</text></svg>">
   <style>
@@ -38,7 +39,7 @@
     .time-display{font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums}
     .dark-toggle{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:background .15s}
     .dark-toggle:hover{background:var(--accent-light)}
-    .content{padding:16px;max-width:1400px;margin:0 auto}
+    .content{padding:16px;padding-bottom:52px;max-width:1400px;margin:0 auto}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
     .card-title{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px}
     .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
@@ -144,10 +145,12 @@
     .social-cell-name{font-size:11px;color:var(--text3);margin-bottom:2px}
     .social-cell-val{font-size:18px;font-weight:700;color:var(--text);line-height:1}
     .social-cell-sub{font-size:10px;color:var(--text3);margin-top:1px}
-    .site-footer{border-top:1px solid var(--border);padding:24px 16px;text-align:center;background:var(--surface);margin-top:40px}
-    .site-footer p{font-size:12px;color:var(--text3);margin-bottom:8px}
-    .site-footer a{color:var(--text2);font-size:12px;margin:0 10px;text-decoration:underline;text-underline-offset:3px}
+    .site-footer{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 16px;transition:background .2s,border-color .2s}
+    .site-footer a{color:var(--text2);font-size:12px;text-decoration:underline;text-underline-offset:3px}
     .site-footer a:hover{color:var(--accent)}
+    .site-footer span{font-size:12px;color:var(--text3)}
+    .company-onboard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+    .company-welcome{background:var(--accent-light);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
   </style>
 </head>
 <body>
@@ -168,11 +171,9 @@
 </main>
 
 <footer class="site-footer">
-  <p>&copy; 2026 Boosted Movers. All rights reserved.</p>
-  <div>
-    <a href="/Boosted-Movers-Analytics/terms/">Terms of Service</a>
-    <a href="/Boosted-Movers-Analytics/privacy/">Privacy Policy</a>
-  </div>
+  <a href="/terms">Terms of Service</a>
+  <a href="/privacy">Privacy Policy</a>
+  <span>&copy; 2026 Boosted Movers Analytics</span>
 </footer>
 
 <script>
@@ -380,14 +381,27 @@ function socialTopCard(isLoading){
   return`<div class="social-top-card"><div class="social-top-header"><span class="social-top-title">Social Media Overview</span><span class="last-refreshed" id="last-refreshed-inline">${lastRefreshedTime?'Updated '+lastRefreshedTime:''}</span></div><div class="social-platforms-row"><div class="social-platform-cell coming-soon-cell"><div class="social-cell-badge">${platformIcon('instagram',28)}</div><div><div class="social-cell-name">Instagram</div><div class="social-cell-val">--</div><div class="social-cell-sub">Coming Soon</div></div></div><div class="social-platform-cell"><div class="social-cell-badge">${platformIcon('youtube',28)}</div><div><div class="social-cell-name">YouTube</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ytV}</div><div class="social-cell-sub">subscribers${youtubeLiveData.channel?' &middot; live':''}</div></div></div><div class="social-platform-cell"><div class="social-cell-badge">${platformIcon('tiktok',28)}</div><div><div class="social-cell-name">TikTok</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ttV}</div><div class="social-cell-sub">followers${tiktokLiveData.user?' &middot; live':''}</div></div></div></div></div>`
 }
 
+// ─── COMPANY ONBOARDING ───────────────────────────────────────────
+function getCompanyName(){return localStorage.getItem('bma_company')||''}
+function setCompanyName(){const input=document.getElementById('company-name-input');if(!input)return;const name=(input.value||'').trim();if(!name){input.focus();return}localStorage.setItem('bma_company',name);renderDashboard(false)}
+function switchCompany(){localStorage.removeItem('bma_company');renderDashboard(false)}
+window.setCompanyName=setCompanyName
+window.switchCompany=switchCompany
+function renderCompanySection(){
+  const name=getCompanyName()
+  if(name)return`<div class="company-welcome"><span style="font-size:14px;font-weight:600;color:var(--text)">Welcome, <span style="color:var(--accent)">${escH(name)}</span></span><button onclick="switchCompany()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px">Switch company</button></div>`
+  return`<div class="company-onboard"><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px">Get started for your moving company</div><div style="font-size:12px;color:var(--text2);margin-bottom:14px">Enter your company name to personalise your analytics dashboard.</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="company-name-input" type="text" placeholder="Your moving company name" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')setCompanyName()"><button onclick="setCompanyName()" style="padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Continue</button></div></div>`
+}
+
 // ─── RENDER DASHBOARD ─────────────────────────────────────────────
 function renderDashboard(isLoading){
   const d=analyticsData
   document.getElementById('analytics-root').innerHTML=`
     <div class="analytics-header">
-      <div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px">Social Media Analytics</div><div style="font-size:13px;color:var(--text2)">Weekly Review &mdash; ${d.week_label} &nbsp;&middot;&nbsp; Updated ${d.last_updated}</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px">Social Media Analytics for Moving Companies</div><div style="font-size:13px;color:var(--text2)">Connect your TikTok account and track performance, video stats, and engagement &mdash; built for the moving industry.</div></div>
       <div class="analytics-header-right"><span class="last-refreshed" id="last-refreshed-label">${lastRefreshedTime?'Last fetched: '+lastRefreshedTime:''}</span><button class="refresh-btn" onclick="refreshAnalytics()" id="refresh-btn"><span class="refresh-icon">&#8635;</span> Refresh</button></div>
     </div>
+    ${renderCompanySection()}
     ${socialTopCard(isLoading)}
     <div class="card" style="margin-bottom:20px">
       <div class="card-title" style="margin-bottom:14px">PLATFORM BREAKDOWN</div>
