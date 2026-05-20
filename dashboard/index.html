@@ -612,7 +612,7 @@ let ttMonthFilter     = (() => { const n = new Date(); return `${n.getFullYear()
 
 // ─── SUPABASE TOKEN FUNCTIONS ────────────────────────────────────
 async function loadTikTokToken(userId) {
-  const { data } = await supabase
+  const { data } = await sb
     .from('user_tokens')
     .select('access_token, open_id')
     .eq('user_id', userId)
