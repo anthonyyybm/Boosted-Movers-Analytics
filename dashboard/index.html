@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — MoverMetrics</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2322c55e'/><text y='.9em' font-size='48' font-family='system-ui' font-weight='800' fill='white' x='10' y='72'>MM</text></svg>">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/sb.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -585,14 +585,14 @@
 
 <script>
 // ─── SUPABASE CONFIG ─────────────────────────────────────────────
-const SUPABASE_URL     = 'https://bmtbzcnrlojacvafyrxi.supabase.co'
+const SUPABASE_URL     = 'https://bmtbzcnrlojacvafyrxi.sb.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtdGJ6Y25ybG9qYWN2YWZ5cnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDk0MDgsImV4cCI6MjA4OTc4NTQwOH0.wVJas9i0sx3oq3A4BNh2cw5iy4Xgxdb6JDA-68Tw_IQ'
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ─── TIKTOK OAUTH CONFIG ─────────────────────────────────────────
 const TT_CLIENT_KEY   = 'sbawiohwdjglaeadzv'
 const TT_REDIRECT_URI = 'https://anthonyyybm.github.io/MoverMetrics/dashboard/'
-const TT_TOKEN_PROXY  = 'https://bmtbzcnrlojacvafyrxi.supabase.co/functions/v1/tiktok-token-exchange'
+const TT_TOKEN_PROXY  = 'https://bmtbzcnrlojacvafyrxi.sb.co/functions/v1/tiktok-token-exchange'
 const TT_API_BASE     = 'https://open.tiktokapis.com/v2'
 
 // ─── PLATFORM CONFIG ─────────────────────────────────────────────
@@ -625,7 +625,7 @@ async function loadTikTokToken(userId) {
 }
 
 async function saveTikTokToken(userId, accessToken, openId) {
-  await supabase.from('user_tokens').upsert({
+  await sb.from('user_tokens').upsert({
     user_id:      userId,
     platform:     'tiktok',
     access_token: accessToken,
@@ -635,9 +635,9 @@ async function saveTikTokToken(userId, accessToken, openId) {
 }
 
 async function disconnectTikTok() {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await sb.auth.getUser()
   if (user) {
-    await supabase.from('user_tokens')
+    await sb.from('user_tokens')
       .delete()
       .eq('user_id', user.id)
       .eq('platform', 'tiktok')
@@ -1513,14 +1513,14 @@ setInterval(tick, 1000)
 
 // ─── LOGOUT ──────────────────────────────────────────────────────
 document.getElementById('logout-btn').addEventListener('click', async () => {
-  await supabase.auth.signOut()
+  await sb.auth.signOut()
   window.location.href = '/MoverMetrics/'
 })
 
 // ─── BOOT ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Auth check
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { session } } = await sb.auth.getSession()
   if (!session) {
     window.location.href = '/MoverMetrics/login/'
     return
