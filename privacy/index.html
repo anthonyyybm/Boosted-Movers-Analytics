@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy — Boosted Movers Analytics</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%231a7a4a'/><text y='.9em' font-size='52' font-family='system-ui' font-weight='700' fill='white' x='12' y='68'>BM</text></svg>">
+  <title>Privacy Policy — MoverMetrics</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2322c55e'/><text y='.9em' font-size='48' font-family='system-ui' font-weight='800' fill='white' x='10' y='72'>MM</text></svg>">
   <style>
     :root {
       --bg: #0f1410; --surface: #161e18; --border: #2a3c2e;
@@ -40,8 +40,8 @@
 <body>
 <header class="topbar">
   <div class="topbar-left">
-    <div class="logo-mark">BM</div>
-    <span class="logo-text">Boosted Movers Analytics</span>
+    <div class="logo-mark">MM</div>
+    <span class="logo-text">MoverMetrics</span>
   </div>
 </header>
 
@@ -50,10 +50,10 @@
   <div class="last-updated">Last updated: May 17, 2026</div>
 
   <div class="highlight-box">
-    <p><strong>Summary:</strong> We collect only the TikTok data needed to display your analytics. Your data is stored locally in your browser. We do not sell, share, or retain your data on our servers beyond the secure token exchange process.</p>
+    <p><strong>Summary:</strong> We collect only the social media data needed to display your analytics. Your access tokens are stored securely in our database. We do not sell, share, or retain your data on our servers beyond what is needed to keep you connected.</p>
   </div>
 
-  <p>Boosted Movers Analytics ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect information when you use our TikTok analytics application.</p>
+  <p>MoverMetrics ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect information when you use our social media analytics application.</p>
 
   <h2>1. Information We Collect</h2>
   <p>When you connect your TikTok account, we request the following data via TikTok's official API:</p>
@@ -75,12 +75,12 @@
   <p>We do not use your data for advertising, profiling, or any purpose beyond what is described above.</p>
 
   <h2>3. Data Storage</h2>
-  <p>Your data is stored exclusively in your browser's <strong>localStorage</strong> on your own device. This includes:</p>
+  <p>Your access tokens are stored securely in our database (Supabase) associated with your user account. This allows you to remain connected across sessions without needing to re-authorize. This includes:</p>
   <ul>
-    <li>Your TikTok access token (used to re-load data on return visits).</li>
-    <li>Your follower count history (used to generate sparklines).</li>
+    <li>Your TikTok access token (stored in Supabase, tied to your authenticated user account).</li>
+    <li>Your follower count history (used to generate sparklines, stored locally in your browser).</li>
   </ul>
-  <p>We do not maintain a backend database of your TikTok data. When you clear your browser storage or click "Disconnect," all stored data is immediately deleted.</p>
+  <p>Analytics data (video stats, follower counts) is fetched fresh from the platform APIs each session and is not persistently stored. When you click "Disconnect," your token is removed from our database and all locally cached data is cleared.</p>
 
   <h2>4. Token Exchange Proxy</h2>
   <p>When you complete TikTok OAuth authorization, TikTok issues a temporary authorization code. To exchange this code for an access token, we use a secure server-side proxy hosted on Supabase. This proxy:</p>
@@ -88,23 +88,24 @@
     <li>Receives the authorization code and your redirect URI.</li>
     <li>Exchanges them with TikTok's API for an access token.</li>
     <li>Returns the access token directly to your browser.</li>
-    <li>Does <strong>not</strong> log, store, or retain your access token or authorization code.</li>
+    <li>The access token is securely stored in our Supabase database, tied to your user account, so you remain connected across sessions.</li>
+    <li>Does <strong>not</strong> log or retain your temporary authorization code beyond the exchange process.</li>
   </ul>
 
   <h2>5. Data Sharing</h2>
   <p>We do not sell, trade, rent, or share your personal information or TikTok data with any third parties, except:</p>
   <ul>
     <li><strong>TikTok:</strong> Data is retrieved directly from TikTok's API on your behalf.</li>
-    <li><strong>Supabase:</strong> Used solely as a secure token exchange proxy (no data retention).</li>
+    <li><strong>Supabase:</strong> Used as a secure token exchange proxy and for storing your access tokens tied to your user account.</li>
     <li><strong>Legal requirements:</strong> We may disclose information if required by law or in response to valid legal process.</li>
   </ul>
 
   <h2>6. Data Retention</h2>
-  <p>Since all data is stored in your browser's localStorage, you control the retention completely. Data is retained until you:</p>
+  <p>Access tokens are retained in our Supabase database for as long as your account is active. Local follower history data is stored in your browser. You control both:</p>
   <ul>
-    <li>Click "Disconnect" in the application (clears all TikTok data from localStorage).</li>
-    <li>Clear your browser's localStorage or cookies.</li>
-    <li>Revoke access in your TikTok account settings (this invalidates the token but does not automatically clear localStorage).</li>
+    <li>Click "Disconnect" in the application (removes your token from Supabase and clears all locally cached TikTok data).</li>
+    <li>Clear your browser's localStorage or cookies (removes locally cached data; token in Supabase remains until you disconnect).</li>
+    <li>Revoke access in your TikTok account settings (invalidates the token; you should also disconnect within the app to clean up stored data).</li>
   </ul>
 
   <h2>7. Cookies and Tracking</h2>
@@ -129,12 +130,12 @@
 
   <h2>12. Contact Us</h2>
   <p>If you have any questions, concerns, or requests regarding this Privacy Policy, please contact us at:</p>
-  <p><strong>Boosted Movers</strong><br>
+  <p><strong>MoverMetrics</strong><br>
   Email: <a href="mailto:anthony@boostedmovers.com">anthony@boostedmovers.com</a></p>
 </main>
 
 <footer class="site-footer">
-  <p>&copy; 2026 Boosted Movers. All rights reserved.</p>
+  <p>&copy; 2026 MoverMetrics. All rights reserved.</p>
   <div>
     <a href="/MoverMetrics/">Home</a>
     <a href="/MoverMetrics/terms/">Terms of Service</a>

@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — MoverMetrics</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2322c55e'/><text y='.9em' font-size='48' font-family='system-ui' font-weight='800' fill='white' x='10' y='72'>MM</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --text3: #484f58;
+      --accent: #22c55e;
+      --accent-hover: #16a34a;
+      --accent-light: #0d2818;
+      --accent-text: #4ade80;
+      --danger: #f85149;
+      --danger-light: #2d1b1b;
+      --amber: #f59e0b;
+      --amber-light: #2d2010;
+      --success: #22c55e;
+      --success-light: #0d2818;
+      --radius: 10px;
+      --shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    button { cursor: pointer; font: inherit; border: none; background: none; }
+    input, textarea, select { font: inherit; }
+
+    /* ─── Topbar ─────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      letter-spacing: .5px;
+      flex-shrink: 0;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .time-display { font-size: 11px; color: var(--text3); font-variant-numeric: tabular-nums; }
+
+    /* ─── Auth topbar elements ─── */
+    .user-email { font-size: 12px; color: var(--text2); }
+    .logout-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      background: var(--surface2);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ─── Content area ─────────────────────────────────────── */
+    .content { padding: 16px; max-width: 1400px; margin: 0 auto; }
+
+    /* ─── Cards ─────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--text3);
+      margin-bottom: 10px;
+    }
+
+    /* ─── Metrics grid ─────────────────────────────────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 900px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+    .metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--text3);
+      margin-bottom: 4px;
+    }
+    .metric-val { font-size: 22px; font-weight: 700; color: var(--text); }
+    .metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    /* ─── Progress bar ─────────────────────────────────────── */
+    .progress-wrap { height: 4px; background: var(--border); border-radius: 2px; }
+    .progress-bar  { height: 4px; border-radius: 2px; transition: width .3s; }
+
+    /* ─── Animations ────────────────────────────────────────── */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* ─── Analytics-specific ─────────────────────────────────── */
+    .a-metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .a-metric:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,.15); }
+    .a-chg-pos { font-size: 11px; font-weight: 600; color: var(--success); margin-top: 3px; }
+    .a-chg-neg { font-size: 11px; font-weight: 600; color: var(--danger);  margin-top: 3px; }
+    .a-chg-nil { font-size: 11px; color: var(--text3); margin-top: 3px; }
+    .platform-section { padding-bottom: 28px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+    .platform-section:last-child { border-bottom: none; padding-bottom: 0; }
+    .platform-badge {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .5px; flex-shrink: 0;
+    }
+    .goals-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+    .goals-row { margin-bottom: 12px; }
+    .goals-row:last-child { margin-bottom: 0; }
+    .goals-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 12px; }
+    .goals-label { font-size: 13px; color: var(--text); }
+    .goals-progress { font-size: 12px; font-weight: 600; color: var(--text2); white-space: nowrap; }
+    .ag3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 8px; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); }
+    @media (max-width: 900px) { .ag3 { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .ag3 { grid-template-columns: 1fr; } }
+
+    /* ─── Skeleton shimmer ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 2rem;
+      width: 60%;
+    }
+
+    /* ─── Fade-in for loaded values ── */
+    .metric-fade-in { animation: fadeIn .4s ease; }
+
+    /* ─── Header row with refresh ── */
+    .analytics-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .analytics-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .last-refreshed {
+      font-size: 11px;
+      color: var(--text3);
+    }
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      background: var(--surface);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .refresh-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
+    .refresh-btn.spinning .refresh-icon { display: inline-block; animation: spin .8s linear infinite; }
+    .refresh-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ─── Data source badges ── */
+    .data-badge-cached {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--amber-light);
+      color: var(--amber);
+      border: 1px solid var(--amber);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .data-badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--success-light);
+      color: var(--success);
+      border: 1px solid var(--success);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* ─── Coming soon badge ── */
+    .coming-soon-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--amber-light);
+      color: var(--amber);
+      border: 1px solid var(--amber);
+      margin-left: 8px;
+    }
+
+    /* ─── Platform connect button ── */
+    .platform-connect-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 13px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background .15s;
+      letter-spacing: .2px;
+    }
+    .platform-connect-btn:hover { background: var(--accent-hover); }
+
+    /* ─── TikTok OAuth connect button ── */
+    .tt-connect-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #010101;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: opacity .15s;
+      letter-spacing: .2px;
+    }
+    .tt-connect-btn:hover { opacity: .82; }
+    .tt-connect-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ─── TikTok analytics: 6-col summary grid ── */
+    .ag6 { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; margin-bottom: 14px; }
+    @media (max-width: 1100px) { .ag6 { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 600px)  { .ag6 { grid-template-columns: repeat(2,1fr); } }
+
+    /* ─── Top video highlighted card ── */
+    .tt-top-video-card {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-left: 3px solid #00C2A8; border-radius: var(--radius);
+      padding: 12px; margin-bottom: 14px;
+    }
+    .tt-top-video-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      background: #00C2A8; color: #fff;
+      padding: 2px 8px; border-radius: 10px; margin-bottom: 6px;
+    }
+
+    /* ─── Tab switcher ── */
+    .tt-tabs { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .tt-tab {
+      padding: 4px 14px; border-radius: 6px;
+      font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text2); cursor: pointer; transition: all .15s;
+    }
+    .tt-tab.active { background: #00C2A8; color: #fff; border-color: #00C2A8; }
+    .tt-tab:hover:not(.active) { border-color: #00C2A8; color: #00C2A8; }
+
+    /* ─── Video table rows ── */
+    .tt-vt-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .tt-vt-row:last-child { border-bottom: none; }
+    .tt-vt-thumb { width: 32px; height: 44px; border-radius: 4px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+    .tt-vt-meta { flex: 1; min-width: 0; }
+    .tt-vt-title { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tt-vt-stats { display: flex; gap: 8px; font-size: 10px; color: var(--text3); margin-bottom: 4px; flex-wrap: wrap; }
+    .tt-vt-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; }
+    .tt-vt-bar { height: 3px; background: #00C2A8; border-radius: 2px; transition: width .3s; }
+    .tt-vt-date { font-size: 10px; color: var(--text3); white-space: nowrap; flex-shrink: 0; }
+
+    /* ─── Loading / error states ── */
+    .tt-loading-state { padding: 28px; text-align: center; color: var(--text3); font-size: 12px; }
+    .tt-error-state {
+      padding: 12px 14px; font-size: 12px; color: var(--danger);
+      background: var(--surface2); border: 1px solid var(--danger);
+      border-radius: var(--radius); margin-top: 8px;
+    }
+
+    /* ─── Full page loader ── */
+    .loader-wrap { padding: 80px 20px; text-align: center; }
+    .loader-spinner {
+      width: 40px; height: 40px; margin: 0 auto 16px;
+      border: 3px solid var(--border);
+      border-top-color: #00C2A8;
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+    .loader-msg { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+    .loader-sub { font-size: 12px; color: var(--text3); }
+
+    /* ─── Tooltip system ── */
+    [data-tooltip] { position: relative; }
+    [data-tooltip]::before {
+      content: attr(data-tooltip);
+      position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30,30,30,.96); color: #fff;
+      font-size: 10px; line-height: 1.5; font-weight: 400;
+      padding: 6px 10px; border-radius: 6px;
+      width: 180px; text-align: center;
+      pointer-events: none; opacity: 0;
+      transition: opacity .18s; z-index: 300;
+      white-space: normal; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+    }
+    [data-tooltip]::after {
+      content: ''; position: absolute; bottom: calc(100% + 3px); left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent; border-top-color: rgba(30,30,30,.96);
+      pointer-events: none; opacity: 0; transition: opacity .18s; z-index: 300;
+    }
+    [data-tooltip]:hover::before, [data-tooltip]:hover::after { opacity: 1; }
+
+    /* ─── Monthly top videos horizontal scroll ── */
+    .tt-monthly-scroll {
+      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .tt-monthly-scroll::-webkit-scrollbar { height: 4px; }
+    .tt-monthly-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .tt-monthly-card {
+      min-width: 120px; max-width: 120px; flex-shrink: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .tt-monthly-label {
+      font-size: 9px; font-weight: 700; color: #00C2A8;
+      letter-spacing: .5px; text-transform: uppercase;
+      padding: 6px 8px 4px;
+    }
+    .tt-monthly-thumb {
+      width: 100%; aspect-ratio: 9/16; object-fit: cover;
+      display: block;
+    }
+    .tt-monthly-thumb-placeholder {
+      width: 100%; aspect-ratio: 9/16;
+      background: var(--surface); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 18px; color: var(--text3);
+    }
+    .tt-monthly-info { padding: 7px 8px 8px; }
+    .tt-monthly-title {
+      font-size: 9px; font-weight: 600; color: var(--text);
+      line-height: 1.35; margin-bottom: 5px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .tt-monthly-stats { display: flex; flex-direction: column; gap: 2px; font-size: 9px; color: var(--text3); }
+
+    /* ─── Charts tab ── */
+    .tt-chart-block { margin-bottom: 18px; }
+    .tt-chart-label {
+      font-size: 11px; font-weight: 700; color: var(--text2);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
+    }
+    .tt-chart-wrap {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 8px 6px;
+      overflow: hidden;
+    }
+
+    /* ─── Metric card with right sparkline layout ── */
+    .tt-metric-inner { display: flex; justify-content: space-between; align-items: flex-end; gap: 6px; }
+    .tt-metric-inner svg { flex-shrink: 0; align-self: flex-end; }
+
+    /* ─── Overview / Trends main tab bar ── */
+    .tt-main-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 2px solid var(--border); }
+    .tt-main-tab {
+      padding: 7px 18px; font-size: 12px; font-weight: 600;
+      border: none; background: none; color: var(--text3);
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .tt-main-tab.active { color: #00C2A8; border-bottom-color: #00C2A8; }
+    .tt-main-tab:hover:not(.active) { color: var(--text2); }
+
+    /* ─── Chart time-range filter ── */
+    .tt-range-wrap { display: flex; gap: 5px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tt-range-btn {
+      padding: 3px 10px; border-radius: 5px;
+      font-size: 10px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text3); cursor: pointer; transition: all .15s;
+    }
+    .tt-range-btn.active { background: var(--surface2); border-color: var(--text2); color: var(--text); }
+    .tt-range-btn:hover:not(.active) { border-color: var(--text2); color: var(--text2); }
+
+    /* ─── TikTok profile card (connected state) ── */
+    .tt-profile-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+    }
+    .tt-profile-left { display: flex; align-items: center; gap: 10px; }
+    .tt-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      object-fit: cover; border: 2px solid var(--border); flex-shrink: 0;
+    }
+    .tt-avatar-placeholder {
+      background: #00C2A8; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .tt-display-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .tt-profile-handle { font-size: 11px; color: var(--text3); }
+    .tt-stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; margin-bottom: 14px;
+    }
+    @media (max-width: 480px) { .tt-stats-row { grid-template-columns: repeat(2, 1fr); } }
+    .tt-stat-cell {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 8px; text-align: center;
+    }
+    .tt-stat-val { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 3px; }
+    .tt-stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); font-weight: 600; }
+
+    /* ─── Social media top card ── */
+    .social-top-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .social-top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .social-top-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .social-platforms-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) { .social-platforms-row { grid-template-columns: 1fr; } }
+    .social-platform-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .social-platform-cell.coming-soon-cell {
+      opacity: 0.45;
+      filter: grayscale(0.3);
+    }
+    .social-cell-name { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
+    .social-cell-val { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+    .social-cell-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 20px;
+      text-align: center;
+      color: var(--text3);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+    .site-footer a { color: var(--text3); text-decoration: none; transition: color .15s; }
+    .site-footer a:hover { color: var(--text2); }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 0 12px; }
+      .time-display { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Topbar ──────────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark">MM</div>
+    <span class="logo-text">MoverMetrics</span>
+  </div>
+  <div class="topbar-right">
+    <div class="time-display" id="time-display">—</div>
+    <span class="user-email" id="user-email"></span>
+    <button class="logout-btn" id="logout-btn">Log Out</button>
+  </div>
+</header>
+
+<!-- ─── Content ─────────────────────────────────────────────────── -->
+<main class="content">
+  <div id="analytics-root"></div>
+</main>
+
+<footer class="site-footer">
+  <a href="/MoverMetrics/terms/">Terms of Service</a>
+  <a href="/MoverMetrics/privacy/">Privacy Policy</a>
+  <span>© 2026 MoverMetrics</span>
+</footer>
+
+<script>
+// ─── SUPABASE CONFIG ─────────────────────────────────────────────
+const SUPABASE_URL     = 'https://bmtbzcnrlojacvafyrxi.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtdGJ6Y25ybG9qYWN2YWZ5cnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDk0MDgsImV4cCI6MjA4OTc4NTQwOH0.wVJas9i0sx3oq3A4BNh2cw5iy4Xgxdb6JDA-68Tw_IQ'
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ─── TIKTOK OAUTH CONFIG ─────────────────────────────────────────
+const TT_CLIENT_KEY   = 'sbawiohwdjglaeadzv'
+const TT_REDIRECT_URI = 'https://anthonyyybm.github.io/MoverMetrics/dashboard/'
+const TT_TOKEN_PROXY  = 'https://bmtbzcnrlojacvafyrxi.supabase.co/functions/v1/tiktok-token-exchange'
+const TT_API_BASE     = 'https://open.tiktokapis.com/v2'
+
+// ─── PLATFORM CONFIG ─────────────────────────────────────────────
+const PLATFORMS = {
+  instagram: { name: 'Instagram', abbr: 'IG', color: '#E1306C' },
+  youtube:   { name: 'YouTube',   abbr: 'YT', color: '#FF0000' },
+  tiktok:    { name: 'TikTok',    abbr: 'TT', color: '#00C2A8' }
+}
+
+// ─── STATE ───────────────────────────────────────────────────────
+let lastRefreshedTime = null
+let ttOAuthToken      = null
+let tiktokLiveData    = { user: null, videos: [], error: null }
+let ttActiveTab       = 'last5'
+let ttMainTab         = 'overview'
+let ttChartMetric     = 'views'
+let ttChartRange      = 'all'
+let ttVideoPage       = 0
+let ttMonthFilter     = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}` })()
+
+// ─── SUPABASE TOKEN FUNCTIONS ────────────────────────────────────
+async function loadTikTokToken(userId) {
+  const { data } = await supabase
+    .from('user_tokens')
+    .select('access_token, open_id')
+    .eq('user_id', userId)
+    .eq('platform', 'tiktok')
+    .maybeSingle()
+  return data?.access_token || null
+}
+
+async function saveTikTokToken(userId, accessToken, openId) {
+  await supabase.from('user_tokens').upsert({
+    user_id:      userId,
+    platform:     'tiktok',
+    access_token: accessToken,
+    open_id:      openId || null,
+    updated_at:   new Date().toISOString()
+  }, { onConflict: 'user_id,platform' })
+}
+
+async function disconnectTikTok() {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    await supabase.from('user_tokens')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('platform', 'tiktok')
+  }
+  ttOAuthToken   = null
+  tiktokLiveData = { user: null, videos: [], error: null }
+  ttActiveTab    = 'last5'
+  ttMainTab      = 'overview'
+  ttChartMetric  = 'views'
+  ttChartRange   = 'all'
+  ttVideoPage    = 0
+  renderDashboard(false)
+}
+window.disconnectTikTok = disconnectTikTok
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function fmtNum(n) {
+  if (n === null || n === undefined) return '—'
+  if (typeof n !== 'number') return String(n)
+  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'K'
+  return String(n)
+}
+
+function changeEl(v) {
+  if (v === null || v === undefined) return '<div class="a-chg-nil">vs last week</div>'
+  const pos = v >= 0
+  return `<div class="${pos ? 'a-chg-pos' : 'a-chg-neg'}">${pos ? '↑' : '↓'} ${pos ? '+' : ''}${Math.abs(v).toFixed(1)}%</div>`
+}
+
+function sparklineSVG(data, color) {
+  if (!data || data.length < 2) return '<div style="width:80px;height:40px"></div>'
+  const W = 80, H = 40, P = 3
+  const lo = Math.min(...data), hi = Math.max(...data), rng = hi - lo || 1
+  const pts = data.map((v, i) => [
+    P + (i / (data.length - 1)) * (W - P * 2),
+    H - P - ((v - lo) / rng) * (H - P * 2)
+  ])
+  let line = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`
+  for (let i = 1; i < pts.length; i++) {
+    const cx = ((pts[i - 1][0] + pts[i][0]) / 2).toFixed(1)
+    line += ` C${cx},${pts[i-1][1].toFixed(1)} ${cx},${pts[i][1].toFixed(1)} ${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)}`
+  }
+  const area = `${line} L${pts[pts.length-1][0].toFixed(1)},${H} L${pts[0][0].toFixed(1)},${H}Z`
+  return `<svg width="80" height="40" viewBox="0 0 80 40" aria-hidden="true" style="display:block">
+    <path d="${area}" fill="${color}" fill-opacity="0.18"/>
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`
+}
+
+function skeletonVal() {
+  return '<div class="skeleton" style="height:1.6rem;width:55%;margin:6px 0 4px"></div>'
+}
+
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+function fmtN(n) {
+  if (!n && n !== 0) return '—'
+  const v = Number(n)
+  if (v >= 1000000) return (v/1000000).toFixed(1).replace(/\.0$/,'')+'M'
+  if (v >= 1000) return (v/1000).toFixed(1).replace(/\.0$/,'')+'K'
+  return String(v)
+}
+function fmtDate(ts) {
+  if (!ts) return ''
+  const d = new Date(Number(ts) * 1000)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+// ─── PLATFORM ICONS ──────────────────────────────────────────────
+function platformIcon(platform, size = 24) {
+  const s = size
+  if (platform === 'tiktok') {
+    return `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect width="48" height="48" rx="10" fill="#010101"/><path d="M34.1 13C33.3 16.4 30 19 26.5 19.2V25.8C29.3 25.6 31.8 24.6 33.8 23v10.3C33.8 39.8 28.6 45 22.1 45c-6.5 0-11.7-5.2-11.7-11.7 0-6.3 5-11.4 11.2-11.7v6.6c-2.8.3-5 2.6-5 5.2 0 2.9 2.3 5.2 5.2 5.2 3 0 5.5-2.5 5.5-5.5V13h6.8z" fill="white"/></svg>`
+  }
+  if (platform === 'instagram') {
+    return `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect width="48" height="48" rx="10" fill="url(#igGrad${s})"/><defs><linearGradient id="igGrad${s}" x1="0" y1="48" x2="48" y2="0"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="12" y="12" width="24" height="24" rx="7" stroke="white" stroke-width="2.5" fill="none"/><circle cx="24" cy="24" r="5.5" stroke="white" stroke-width="2.5" fill="none"/><circle cx="33" cy="15" r="1.5" fill="white"/></svg>`
+  }
+  if (platform === 'youtube') {
+    return `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect width="48" height="48" rx="10" fill="#FF0000"/><path d="M38.5 17.5a3.5 3.5 0 00-2.46-2.48C33.83 14.5 24 14.5 24 14.5s-9.83 0-12.04.52A3.5 3.5 0 009.5 17.5 36.7 36.7 0 009 24a36.7 36.7 0 00.5 6.5 3.5 3.5 0 002.46 2.48C14.17 33.5 24 33.5 24 33.5s9.83 0 12.04-.52a3.5 3.5 0 002.46-2.48A36.7 36.7 0 0039 24a36.7 36.7 0 00-.5-6.5z" fill="white"/><polygon points="21,20 21,28 28,24" fill="#FF0000"/></svg>`
+  }
+  return ''
+}
+
+// ─── COMPONENTS ──────────────────────────────────────────────────
+function metricCard(label, value, change, sparkData, color, isLoading) {
+  const spark = sparkData ? sparklineSVG(sparkData, color) : '<div style="width:80px;height:40px"></div>'
+  const display = isLoading ? skeletonVal() : (typeof value === 'string' ? value : fmtNum(value))
+  const chg = isLoading ? '<div class="a-chg-nil">loading…</div>' : changeEl(change)
+  return `<div class="a-metric${isLoading ? '' : ' metric-fade-in'}">
+    <div class="metric-label">${label}</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px">
+      <div>
+        <div class="metric-val">${display}</div>
+        ${chg}
+      </div>
+      <div style="flex-shrink:0;margin-left:8px;align-self:flex-end">${isLoading ? '' : spark}</div>
+    </div>
+  </div>`
+}
+
+function goalsCard(goals, color) {
+  return `<div class="goals-card">
+    <div class="card-title">GOALS</div>
+    ${goals.map(g => {
+      const pct = Math.min(100, Math.round((g.current / g.target) * 100))
+      return `<div class="goals-row">
+        <div class="goals-meta">
+          <span class="goals-label">${g.label}</span>
+          <span class="goals-progress">${g.current}/${g.target} (${pct}%)</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>`
+    }).join('')}
+  </div>`
+}
+
+// ─── FOLLOWER HISTORY (localStorage, not the token) ──────────────
+function updateFollowerHistory(count) {
+  const today   = new Date().toISOString().split('T')[0]
+  let history   = JSON.parse(localStorage.getItem('tt_follower_history') || '[]')
+  const last    = history[history.length - 1]
+  if (!last || last.date !== today) {
+    history.push({ date: today, count: Number(count) || 0 })
+    if (history.length > 60) history = history.slice(-60)
+    localStorage.setItem('tt_follower_history', JSON.stringify(history))
+  }
+  return history
+}
+function getFollowerHistory() {
+  return JSON.parse(localStorage.getItem('tt_follower_history') || '[]')
+}
+
+// ─── TIKTOK CHART / DATA HELPERS ─────────────────────────────────
+function groupByMonth(videos) {
+  const map = {}
+  videos.forEach(v => {
+    if (!v.create_time) return
+    const d   = new Date(Number(v.create_time) * 1000)
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+    const lbl = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+    if (!map[key]) map[key] = { key, label: lbl, videos: [], views: 0, likes: 0, comments: 0, count: 0 }
+    map[key].videos.push(v)
+    map[key].views    += v.view_count    || 0
+    map[key].likes    += v.like_count    || 0
+    map[key].comments += v.comment_count || 0
+    map[key].count    += 1
+  })
+  return Object.values(map).sort((a, b) => a.key.localeCompare(b.key))
+}
+
+function miniSparkline(values, color, w = 72, h = 32) {
+  if (!values || values.length < 2) return `<div style="width:${w}px;height:${h}px"></div>`
+  const lo = 0, hi = Math.max(...values, 1), P = 2
+  const pts = values.map((v, i) => [
+    P + (i / (values.length - 1)) * (w - P * 2),
+    P + (1 - v / hi) * (h - P * 2)
+  ])
+  let line = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`
+  for (let i = 1; i < pts.length; i++) {
+    const cx = ((pts[i-1][0] + pts[i][0]) / 2).toFixed(1)
+    line += ` C${cx},${pts[i-1][1].toFixed(1)} ${cx},${pts[i][1].toFixed(1)} ${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)}`
+  }
+  const area = `${line} L${pts[pts.length-1][0].toFixed(1)},${h} L${pts[0][0].toFixed(1)},${h}Z`
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;flex-shrink:0">
+    <path d="${area}" fill="${color}" fill-opacity="0.15"/>
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${pts[pts.length-1][0].toFixed(1)}" cy="${pts[pts.length-1][1].toFixed(1)}" r="2.5" fill="${color}"/>
+  </svg>`
+}
+
+function groupByDay(videos, filterMonth) {
+  const map = {}
+  videos.forEach(v => {
+    if (!v.create_time) return
+    const d    = new Date(Number(v.create_time) * 1000)
+    const mKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+    if (filterMonth && mKey !== filterMonth) return
+    const key  = d.toISOString().split('T')[0]
+    const lbl  = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    if (!map[key]) map[key] = { key, label: lbl, videos: [], views: 0, likes: 0, comments: 0, count: 0 }
+    map[key].views    += v.view_count    || 0
+    map[key].likes    += v.like_count    || 0
+    map[key].comments += v.comment_count || 0
+    map[key].count    += 1
+  })
+  return Object.values(map).sort((a, b) => a.key.localeCompare(b.key))
+}
+
+function enrichData(data) {
+  return data.map(m => ({
+    ...m,
+    avg: m.count ? Math.round(m.views / m.count) : 0,
+    eng: m.views > 0 ? +((m.likes + m.comments) / m.views * 100).toFixed(2) : 0
+  }))
+}
+
+function getChartData(videos, range) {
+  const now = new Date()
+  if (range === 'month') {
+    const curMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
+    return enrichData(groupByDay(videos, curMonth))
+  }
+  const byMonth = groupByMonth(videos)
+  if (range === 'all') return enrichData(byMonth)
+  const n = range === '6m' ? 6 : 3
+  const cutoff = new Date(now)
+  cutoff.setMonth(cutoff.getMonth() - n)
+  const cutKey = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}`
+  return enrichData(byMonth.filter(m => m.key >= cutKey))
+}
+
+function renderLineChart(data, valueKey, color) {
+  if (!data || data.length < 2) return '<div class="tt-loading-state">Not enough data for this range.</div>'
+  const W = 500, H = 80, PL = 24, PR = 4, PT = 6, PB = 16
+  const vals = data.map(m => m[valueKey] || 0)
+  const hi = Math.max(...vals, 1)
+  const cw = W - PL - PR, ch = H - PT - PB
+  const pts = data.map((m, i) => [
+    PL + (i / (data.length - 1)) * cw,
+    PT + (1 - (m[valueKey] || 0) / hi) * ch
+  ])
+  let line = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`
+  for (let i = 1; i < pts.length; i++) {
+    const cx = ((pts[i-1][0] + pts[i][0]) / 2).toFixed(1)
+    line += ` C${cx},${pts[i-1][1].toFixed(1)} ${cx},${pts[i][1].toFixed(1)} ${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)}`
+  }
+  const area = `${line} L${pts[pts.length-1][0].toFixed(1)},${H-PB} L${pts[0][0].toFixed(1)},${H-PB}Z`
+  const xLabels = data.map((m, i) =>
+    `<text x="${pts[i][0].toFixed(1)}" y="${H-PB+11}" text-anchor="middle" font-size="5" fill="var(--text3)" font-family="system-ui">${m.label}</text>`
+  ).join('')
+  const yTicks = [0, 0.5, 1].map(t => {
+    const y = (PT + (1 - t) * ch).toFixed(1)
+    const v = Math.round(hi * t)
+    const lbl = v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(1)+'K' : String(v)
+    return `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,4"/>
+            <text x="${PL-3}" y="${(+y+2).toFixed(1)}" text-anchor="end" font-size="5" fill="var(--text3)" font-family="system-ui">${lbl}</text>`
+  }).join('')
+  const dots = pts.map((pt, i) => {
+    const v = data[i][valueKey] || 0
+    const fv = valueKey === 'eng' ? v.toFixed(2)+'%' : (v >= 1000 ? (v/1000).toFixed(1)+'K' : String(v))
+    const tip = (data[i].label + ': ' + fv).replace(/'/g, '&#39;')
+    return `<g onmouseover="showChartTip(event,'${tip}')" onmouseout="hideChartTip()" style="cursor:pointer">
+      <circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="7" fill="transparent"/>
+      <circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.5" fill="${color}" stroke="var(--surface2)" stroke-width="1.5"/>
+    </g>`
+  }).join('')
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" preserveAspectRatio="xMidYMid meet">
+    ${yTicks}
+    <path d="${area}" fill="${color}" fill-opacity="0.1"/>
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+    ${xLabels}
+  </svg>`
+}
+
+function genInsight(data, valueKey, metricLabel) {
+  if (!data || data.length < 2) return ''
+  const vals  = data.map(m => m[valueKey] || 0)
+  const n     = vals.length
+  const first = vals[0], last = vals[n - 1]
+  const maxVal = Math.max(...vals), maxIdx = vals.lastIndexOf(maxVal)
+  const minVal = Math.min(...vals), minIdx = vals.indexOf(minVal)
+  const isEng  = valueKey === 'eng'
+  const fmt = v => isEng ? v.toFixed(1) + '%' : (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(1)+'K' : String(Math.round(v)))
+  const avg   = vals.reduce((a, b) => a + b, 0) / n
+  const overallPct = first > 0 ? Math.round((last - first) / first * 100) : 0
+  const peakedMid  = maxIdx > 0 && maxIdx < n - 1 && maxVal > avg * 1.3
+  const dipMid     = minIdx > 0 && minIdx < n - 1 && minVal < avg * 0.6
+  const recentUp   = n >= 2 && last > vals[n - 2] * 1.15
+  const recentDown = n >= 2 && last < vals[n - 2] * 0.85
+
+  let text = ''
+  if (peakedMid && last < maxVal * 0.75) {
+    const dropPct = Math.round((maxVal - last) / maxVal * 100)
+    text = `Peaked at ${fmt(maxVal)} in ${data[maxIdx].label}, then declined ${dropPct}% through ${data[n-1].label}.`
+    if (recentUp) text += ' Slight recovery in the most recent period.'
+  } else if (dipMid && last > minVal * 1.3) {
+    text = `Dipped to ${fmt(minVal)} in ${data[minIdx].label} but has since recovered to ${fmt(last)}.`
+  } else if (overallPct >= 50) {
+    text = `Strong upward trend — up ${overallPct}% from ${data[0].label} to ${data[n-1].label}.`
+    if (recentDown) text += ' Momentum slowing in the latest period.'
+  } else if (overallPct >= 15) {
+    text = `Gradual growth of ${overallPct}% over this period.`
+    if (recentUp) text += ' Growth is accelerating recently.'
+  } else if (overallPct <= -50) {
+    text = `Sharp decline of ${Math.abs(overallPct)}% since ${data[0].label}.`
+    if (recentUp) text += ' Most recent period shows early signs of recovery.'
+  } else if (overallPct <= -15) {
+    text = `Declining trend, down ${Math.abs(overallPct)}% over this period.`
+    if (recentUp) text += ' Latest period bucked the trend — worth watching.'
+  } else {
+    const dir = overallPct >= 0 ? `up ${overallPct}%` : `down ${Math.abs(overallPct)}%`
+    text = `Relatively stable over this period — ${dir} overall.`
+  }
+  if (!text.includes(data[maxIdx].label) && maxVal > avg * 1.5) {
+    text += ` Best period: ${data[maxIdx].label} (${fmt(maxVal)}).`
+  }
+  return text
+}
+
+function renderVideoTableRows(videos, allVideos) {
+  if (!videos || videos.length === 0) {
+    return '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3)">No videos found</div>'
+  }
+  const maxViews = Math.max(...allVideos.map(v => v.view_count || 0), 1)
+  return videos.map(v => {
+    const title  = escH(v.title || v.video_description || '(No title)')
+    const barPct = Math.round(((v.view_count || 0) / maxViews) * 100)
+    const thumb  = v.cover_image_url
+      ? `<img src="${escH(v.cover_image_url)}" class="tt-vt-thumb" alt="">`
+      : `<div class="tt-vt-thumb" style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">▶</div>`
+    return `<div class="tt-vt-row">
+      ${thumb}
+      <div class="tt-vt-meta">
+        <div class="tt-vt-title" title="${title}">${title}</div>
+        <div class="tt-vt-stats">
+          <span>👁 ${fmtN(v.view_count)}</span>
+          <span>♥ ${fmtN(v.like_count)}</span>
+          <span>💬 ${fmtN(v.comment_count)}</span>
+        </div>
+        <div class="tt-vt-bar-wrap"><div class="tt-vt-bar" style="width:${barPct}%"></div></div>
+      </div>
+      <div class="tt-vt-date">${fmtDate(v.create_time)}</div>
+    </div>`
+  }).join('')
+}
+
+function renderPaginatedTable(pool, allVideos, page, pageSize) {
+  const totalPages = Math.ceil(pool.length / pageSize)
+  const rows = renderVideoTableRows(pool.slice(page * pageSize, (page + 1) * pageSize), allVideos)
+  if (totalPages <= 1) return rows
+  return `${rows}
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+    <button class="refresh-btn" style="font-size:11px;padding:3px 10px" onclick="setVideoPage(${page-1})"${page===0?' disabled':''}>← Prev</button>
+    <span style="font-size:11px;color:var(--text3)">Page ${page+1} of ${totalPages} · ${pool.length} videos</span>
+    <button class="refresh-btn" style="font-size:11px;padding:3px 10px" onclick="setVideoPage(${page+1})"${page>=totalPages-1?' disabled':''}>Next →</button>
+  </div>`
+}
+
+function renderMonthlyTopVideo(videos, selectedMonth) {
+  const byMonth = groupByMonth(videos)
+  if (byMonth.length === 0) {
+    return '<div style="padding:12px;text-align:center;font-size:12px;color:var(--text3)">No video data available</div>'
+  }
+  const opts = byMonth.slice().reverse().map(m =>
+    `<option value="${m.key}"${m.key === selectedMonth ? ' selected' : ''}>${m.label}</option>`
+  ).join('')
+  const monthData = byMonth.find(m => m.key === selectedMonth)
+  let cardHtml
+  if (!monthData || monthData.videos.length === 0) {
+    cardHtml = `<div style="padding:14px;text-align:center;font-size:12px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">No videos posted this month</div>`
+  } else {
+    const top = monthData.videos.reduce((a, b) => (b.view_count||0) > (a.view_count||0) ? b : a)
+    const thumb = top.cover_image_url
+      ? `<img src="${escH(top.cover_image_url)}" style="width:56px;height:78px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)" alt="">`
+      : `<div style="width:56px;height:78px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:var(--text3)">▶</div>`
+    cardHtml = `<div class="tt-top-video-card">
+      ${thumb}
+      <div style="flex:1;min-width:0">
+        <div class="tt-top-video-badge">🏆 Top Video — ${monthData.label}</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:7px;line-height:1.4">${escH(top.title || top.video_description || '(No title)')}</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--text2)">👁 <strong>${fmtN(top.view_count)}</strong> views</span>
+          <span style="font-size:11px;color:var(--text2)">♥ <strong>${fmtN(top.like_count)}</strong> likes</span>
+          <span style="font-size:11px;color:var(--text2)">💬 <strong>${fmtN(top.comment_count)}</strong> comments</span>
+          ${top.create_time ? `<span style="font-size:11px;color:var(--text3)">${fmtDate(top.create_time)}</span>` : ''}
+        </div>
+      </div>
+    </div>`
+  }
+  return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);font-weight:700">🏆 Top Video of the Month</div>
+      <select onchange="setMonthFilter(this.value)" style="font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);cursor:pointer;outline:none">${opts}</select>
+    </div>
+    ${cardHtml}`
+}
+
+function renderTrendsTab(videos) {
+  const metricCfg = [
+    { key: 'views',    label: 'Views',          color: '#00C2A8' },
+    { key: 'likes',    label: 'Likes',           color: '#f43f5e' },
+    { key: 'comments', label: 'Comments',        color: '#8b5cf6' },
+    { key: 'avg',      label: 'Average Views',   color: '#f59e0b' },
+    { key: 'eng',      label: 'Engagement Rate', color: '#3b82f6' },
+  ]
+  const rangeCfg = [
+    { key: 'all',   label: 'All Time' },
+    { key: '6m',    label: 'Last 6 Mo' },
+    { key: '3m',    label: 'Last 3 Mo' },
+    { key: 'month', label: 'This Month' },
+  ]
+  const data     = getChartData(videos, ttChartRange)
+  const mc       = metricCfg.find(m => m.key === ttChartMetric) || metricCfg[0]
+  const metricTabs = metricCfg.map(m =>
+    `<button class="tt-tab${ttChartMetric === m.key ? ' active' : ''}" data-metric="${m.key}" onclick="switchChartMetric('${m.key}')">${m.label}</button>`
+  ).join('')
+  const rangeBtns = rangeCfg.map(r =>
+    `<button class="tt-range-btn${ttChartRange === r.key ? ' active' : ''}" onclick="switchChartRange('${r.key}')">${r.label}</button>`
+  ).join('')
+  const rangeLbl = rangeCfg.find(r => r.key === ttChartRange)?.label || ''
+  const insight  = data.length >= 2 ? genInsight(data, mc.key, mc.label) : ''
+  const legend = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:${insight ? '5px' : '6px'}">
+    <span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);font-weight:600">
+      <span style="width:14px;height:2px;background:${mc.color};border-radius:1px;display:inline-block"></span>
+      ${mc.label}
+    </span>
+    <span style="font-size:10px;color:var(--text3)">·</span>
+    <span style="font-size:10px;color:var(--text3)">${rangeLbl}</span>
+    <span style="font-size:10px;color:var(--text3)">·</span>
+    <span style="font-size:10px;color:var(--text3)">${data.length} data point${data.length !== 1 ? 's' : ''}</span>
+  </div>
+  ${insight ? `<p style="font-size:10px;font-style:italic;color:var(--text3);margin:0 0 7px;line-height:1.5">${escH(insight)}</p>` : ''}`
+  const chartHtml = data.length < 2
+    ? `<div style="padding:20px;text-align:center;font-size:11px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">Not enough data for this time range</div>`
+    : `<div class="tt-chart-wrap">${legend}${renderLineChart(data, mc.key, mc.color)}</div>`
+  return `<div class="tt-tabs" style="flex-wrap:wrap;gap:5px;margin-bottom:10px">${metricTabs}</div>
+    <div class="tt-range-wrap">${rangeBtns}</div>
+    ${chartHtml}`
+}
+
+function renderOverviewContent(user, videos) {
+  const byMonth       = groupByMonth(videos)
+  const totalViews    = videos.reduce((s, v) => s + (v.view_count    || 0), 0)
+  const totalLikes    = videos.reduce((s, v) => s + (v.like_count    || 0), 0)
+  const totalComments = videos.reduce((s, v) => s + (v.comment_count || 0), 0)
+  const avgViews      = videos.length ? Math.round(totalViews / videos.length) : 0
+  const engRate       = totalViews > 0 ? ((totalLikes + totalComments) / totalViews * 100).toFixed(2) : '0.00'
+  const mViews    = byMonth.map(m => m.views)
+  const mLikes    = byMonth.map(m => m.likes)
+  const mComments = byMonth.map(m => m.comments)
+  const mAvg      = byMonth.map(m => m.count ? Math.round(m.views / m.count) : 0)
+  const mEng      = byMonth.map(m => m.views > 0 ? +((m.likes+m.comments)/m.views*100).toFixed(2) : 0)
+  function momDelta(arr) {
+    if (arr.length < 2) return null
+    const prev = arr[arr.length-2], cur = arr[arr.length-1]
+    return prev ? (((cur-prev)/prev)*100).toFixed(1) : null
+  }
+  function trendLine(d) { return d === null ? '' : d >= 0 ? `Up ${d}% from last month.` : `Down ${Math.abs(d)}% from last month.` }
+  const dv = momDelta(mViews), de = momDelta(mEng), da = momDelta(mAvg)
+  const fHistory   = getFollowerHistory()
+  const mFollowers = fHistory.length >= 2 ? fHistory.map(h => h.count) : []
+  const fTrendNote = fHistory.length >= 2
+    ? ` Tracking since ${fHistory[0].date}.`
+    : ' Sparkline builds as you revisit.'
+  const tipFollowers = `${fmtN(user.follower_count)} total followers.${fTrendNote} Keep posting daily to accelerate growth.`
+  const tipViews     = `${fmtN(totalViews)} views across ${videos.length} videos. ${trendLine(dv)}`
+  const tipLikes     = `Like rate: ${totalViews > 0 ? ((totalLikes/totalViews)*100).toFixed(1) : 0}% of views. Industry avg is 3–5%.`
+  const tipComments  = `Comment rate: ${totalViews > 0 ? ((totalComments/totalViews)*100).toFixed(2) : 0}% of views. Comments signal strong audience connection.`
+  const tipAvg       = `${fmtN(avgViews)} avg views/video. ${trendLine(da)} ${avgViews > 1000 ? 'Solid performance.' : 'Hook the first 3 seconds harder.'}`
+  const tipEng       = `${engRate}% engagement. ${+engRate > 5 ? '🔥 Top tier.' : +engRate > 2 ? '✅ Above average.' : '⚠ Add stronger CTAs.'} ${trendLine(de)}`
+  const tableContent = ttActiveTab === 'last5'
+    ? renderVideoTableRows(videos.slice(0, 5), videos)
+    : renderPaginatedTable(ttActiveTab === 'all' ? videos : videos.slice(0, 20), videos, ttVideoPage, 5)
+  return `<div class="ag6" style="margin-bottom:14px">
+    <div class="a-metric" data-tooltip="${tipFollowers}">
+      <div class="metric-label">FOLLOWERS</div>
+      <div class="tt-metric-inner">
+        <div><div class="metric-val" style="margin-top:4px">${fmtN(user.follower_count)}</div><div class="metric-sub">${mFollowers.length >= 2 ? mFollowers.length + ' day history' : 'account total'}</div></div>
+        ${mFollowers.length >= 2 ? miniSparkline(mFollowers, '#00C2A8') : ''}
+      </div>
+    </div>
+    <div class="a-metric" data-tooltip="${tipViews}">
+      <div class="metric-label">TOTAL VIEWS</div>
+      <div class="tt-metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(totalViews)}</div><div class="metric-sub">all ${videos.length} videos</div></div>${miniSparkline(mViews,'#00C2A8')}</div>
+    </div>
+    <div class="a-metric" data-tooltip="${tipLikes}">
+      <div class="metric-label">TOTAL LIKES</div>
+      <div class="tt-metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(totalLikes)}</div><div class="metric-sub">all videos</div></div>${miniSparkline(mLikes,'#f43f5e')}</div>
+    </div>
+    <div class="a-metric" data-tooltip="${tipComments}">
+      <div class="metric-label">TOTAL COMMENTS</div>
+      <div class="tt-metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(totalComments)}</div><div class="metric-sub">all videos</div></div>${miniSparkline(mComments,'#8b5cf6')}</div>
+    </div>
+    <div class="a-metric" data-tooltip="${tipAvg}">
+      <div class="metric-label">AVG VIEWS</div>
+      <div class="tt-metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(avgViews)}</div><div class="metric-sub">${videos.length} videos</div></div>${miniSparkline(mAvg,'#f59e0b')}</div>
+    </div>
+    <div class="a-metric" data-tooltip="${tipEng}">
+      <div class="metric-label">ENGAGEMENT RATE</div>
+      <div class="tt-metric-inner"><div><div class="metric-val" style="margin-top:4px">${engRate}%</div><div class="metric-sub">(likes+comments)/views</div></div>${miniSparkline(mEng,'#3b82f6')}</div>
+    </div>
+  </div>
+  <div id="tt-monthly-top" style="margin-bottom:16px">${renderMonthlyTopVideo(videos, ttMonthFilter)}</div>
+  <div class="tt-tabs">
+    <button class="tt-tab${ttActiveTab==='last5'?' active':''}" data-tab="last5" onclick="switchVideoTab('last5')">Last 5</button>
+    <button class="tt-tab${ttActiveTab==='last20'?' active':''}" data-tab="last20" onclick="switchVideoTab('last20')">Last 20</button>
+    <button class="tt-tab${ttActiveTab==='all'?' active':''}" data-tab="all" onclick="switchVideoTab('all')">All Videos</button>
+    <span style="margin-left:auto;font-size:10px;color:var(--text3);align-self:center">${videos.length} total</span>
+  </div>
+  <div id="tt-video-table">${tableContent}</div>`
+}
+
+// ─── TAB / FILTER HANDLERS ────────────────────────────────────────
+function switchVideoTab(tab) {
+  ttActiveTab = tab
+  ttVideoPage = 0
+  const el = document.getElementById('tt-video-table')
+  if (el) {
+    if (tab === 'last5') {
+      el.innerHTML = renderVideoTableRows(tiktokLiveData.videos.slice(0, 5), tiktokLiveData.videos)
+    } else {
+      const pool = tab === 'all' ? tiktokLiveData.videos : tiktokLiveData.videos.slice(0, 20)
+      el.innerHTML = renderPaginatedTable(pool, tiktokLiveData.videos, 0, 5)
+    }
+  }
+  document.querySelectorAll('[data-tab="last5"],[data-tab="last20"],[data-tab="all"]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab)
+  })
+}
+window.switchVideoTab = switchVideoTab
+
+function switchMainTab(tab) {
+  ttMainTab = tab
+  const el = document.getElementById('tt-main-content')
+  if (!el || !tiktokLiveData.user) { renderDashboard(false); return }
+  el.innerHTML = tab === 'trends'
+    ? renderTrendsTab(tiktokLiveData.videos)
+    : renderOverviewContent(tiktokLiveData.user, tiktokLiveData.videos)
+  document.querySelectorAll('.tt-main-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab)
+  })
+}
+window.switchMainTab = switchMainTab
+
+function switchChartMetric(metric) {
+  ttChartMetric = metric
+  const el = document.getElementById('tt-main-content')
+  if (el) el.innerHTML = renderTrendsTab(tiktokLiveData.videos)
+}
+window.switchChartMetric = switchChartMetric
+
+function switchChartRange(range) {
+  ttChartRange = range
+  const el = document.getElementById('tt-main-content')
+  if (el) el.innerHTML = renderTrendsTab(tiktokLiveData.videos)
+}
+window.switchChartRange = switchChartRange
+
+function setVideoPage(page) {
+  ttVideoPage = page
+  const el = document.getElementById('tt-video-table')
+  if (!el) return
+  const pool = ttActiveTab === 'all' ? tiktokLiveData.videos : tiktokLiveData.videos.slice(0, 20)
+  el.innerHTML = renderPaginatedTable(pool, tiktokLiveData.videos, page, 5)
+}
+window.setVideoPage = setVideoPage
+
+function setMonthFilter(value) {
+  ttMonthFilter = value
+  const el = document.getElementById('tt-monthly-top')
+  if (el) el.innerHTML = renderMonthlyTopVideo(tiktokLiveData.videos, value)
+}
+window.setMonthFilter = setMonthFilter
+
+function showChartTip(evt, text) {
+  let tip = document.getElementById('tt-chart-tip')
+  if (!tip) {
+    tip = document.createElement('div')
+    tip.id = 'tt-chart-tip'
+    tip.style.cssText = 'position:fixed;background:rgba(15,15,15,.92);color:#fff;font-size:10px;line-height:1.4;padding:5px 9px;border-radius:5px;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:opacity .1s'
+    document.body.appendChild(tip)
+  }
+  tip.textContent = text
+  tip.style.opacity = '1'
+  tip.style.left = (evt.clientX + 14) + 'px'
+  tip.style.top  = (evt.clientY - 36) + 'px'
+}
+window.showChartTip = showChartTip
+
+function hideChartTip() {
+  const tip = document.getElementById('tt-chart-tip')
+  if (tip) tip.style.opacity = '0'
+}
+window.hideChartTip = hideChartTip
+
+// ─── TIKTOK BLOCK ────────────────────────────────────────────────
+function tiktokBlock(isLoading) {
+  const cfg = PLATFORMS.tiktok
+  const c   = cfg.color
+  const connected = !!ttOAuthToken && !!tiktokLiveData.user
+
+  // Connected: full analytics dashboard
+  if (connected && !isLoading) {
+    const user    = tiktokLiveData.user
+    const videos  = tiktokLiveData.videos
+    const byMonth = groupByMonth(videos)
+
+    const avatarEl = user.avatar_url
+      ? `<img src="${escH(user.avatar_url)}" class="tt-avatar" alt="">`
+      : `<div class="tt-avatar tt-avatar-placeholder">TT</div>`
+
+    const errorBanner = tiktokLiveData.error
+      ? `<div class="tt-error-state">⚠ ${escH(tiktokLiveData.error)}</div>`
+      : ''
+
+    const mainContent = ttMainTab === 'trends'
+      ? renderTrendsTab(videos)
+      : renderOverviewContent(user, videos)
+
+    return `<div class="platform-section">
+      ${errorBanner}
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        ${platformIcon('tiktok', 28)}
+        <span style="font-size:17px;font-weight:700">TikTok</span>
+        <span class="data-badge-live" style="margin-left:0">● Live API</span>
+        <button class="refresh-btn" style="margin-left:auto;font-size:11px;padding:3px 9px" onclick="disconnectTikTok()">Disconnect</button>
+      </div>
+
+      <div class="tt-profile-card" style="margin-bottom:14px">
+        <div class="tt-profile-left">
+          ${avatarEl}
+          <div>
+            <div class="tt-display-name">${escH(user.display_name || 'TikTok Account')}</div>
+            <div class="tt-profile-handle">${videos.length} videos · ${byMonth.length} month${byMonth.length !== 1 ? 's' : ''} of data</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tt-main-tabs">
+        <button class="tt-main-tab${ttMainTab==='overview'?' active':''}" data-tab="overview" onclick="switchMainTab('overview')">Overview</button>
+        <button class="tt-main-tab${ttMainTab==='trends'?' active':''}" data-tab="trends" onclick="switchMainTab('trends')">📈 Trends</button>
+      </div>
+
+      <div id="tt-main-content">${mainContent}</div>
+    </div>`
+  }
+
+  // Not connected / loading
+  if (isLoading) {
+    return `<div class="platform-section">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        ${platformIcon('tiktok', 28)}
+        <span style="font-size:17px;font-weight:700">TikTok</span>
+      </div>
+      <div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">Loading...</div>
+    </div>`
+  }
+
+  // Not connected
+  const tiktokError = tiktokLiveData.error
+    ? `<div class="tt-error-state">⚠ ${escH(tiktokLiveData.error)}</div>`
+    : ''
+
+  return `<div class="platform-section">
+    ${tiktokError}
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      ${platformIcon('tiktok', 28)}
+      <span style="font-size:17px;font-weight:700">TikTok</span>
+      <button onclick="startTikTokOAuth()" style="margin-left:auto" class="platform-connect-btn">Connect TikTok</button>
+    </div>
+    <p style="color:var(--text2);font-size:13px">Connect your TikTok account to see analytics here.</p>
+  </div>`
+}
+
+// ─── INSTAGRAM BLOCK (Coming Soon) ───────────────────────────────
+function instagramBlock() {
+  return `<div class="platform-section">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      ${platformIcon('instagram', 28)}
+      <span style="font-size:17px;font-weight:700">Instagram</span>
+      <span class="coming-soon-badge">Coming Soon</span>
+    </div>
+    <p style="color:var(--text3);font-size:13px">Instagram integration is on its way.</p>
+  </div>`
+}
+
+// ─── YOUTUBE BLOCK (Coming Soon) ─────────────────────────────────
+function youtubeBlock() {
+  return `<div class="platform-section">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      ${platformIcon('youtube', 28)}
+      <span style="font-size:17px;font-weight:700">YouTube</span>
+      <span class="coming-soon-badge">Coming Soon</span>
+    </div>
+    <p style="color:var(--text3);font-size:13px">YouTube integration is on its way.</p>
+  </div>`
+}
+
+// ─── SOCIAL TOP CARD ─────────────────────────────────────────────
+function socialTopCard(isLoading) {
+  const ttF = tiktokLiveData.user ? fmtN(tiktokLiveData.user.follower_count) : '--'
+  return `<div class="social-top-card">
+    <div class="social-top-header">
+      <span class="social-top-title">Social Overview</span>
+      <span class="last-refreshed" id="last-refreshed-inline">${lastRefreshedTime ? 'Updated ' + lastRefreshedTime : ''}</span>
+    </div>
+    <div class="social-platforms-row">
+      <div class="social-platform-cell coming-soon-cell">
+        ${platformIcon('instagram', 28)}
+        <div>
+          <div class="social-cell-name">Instagram</div>
+          <div class="social-cell-val">--</div>
+          <div class="social-cell-sub">Coming Soon</div>
+        </div>
+      </div>
+      <div class="social-platform-cell coming-soon-cell">
+        ${platformIcon('youtube', 28)}
+        <div>
+          <div class="social-cell-name">YouTube</div>
+          <div class="social-cell-val">--</div>
+          <div class="social-cell-sub">Coming Soon</div>
+        </div>
+      </div>
+      <div class="social-platform-cell">
+        ${platformIcon('tiktok', 28)}
+        <div>
+          <div class="social-cell-name">TikTok</div>
+          <div class="social-cell-val">${isLoading ? '<div class="skeleton" style="height:1.2rem;width:50px"></div>' : ttF}</div>
+          <div class="social-cell-sub">followers${tiktokLiveData.user ? ' · live' : ''}</div>
+        </div>
+      </div>
+    </div>
+  </div>`
+}
+
+// ─── RENDER DASHBOARD ────────────────────────────────────────────
+function renderDashboard(isLoading) {
+  document.getElementById('analytics-root').innerHTML = `
+    <div class="analytics-header">
+      <div>
+        <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px">Social Media Analytics</div>
+        <div style="font-size:13px;color:var(--text2)">Connect your accounts and track performance across platforms.</div>
+      </div>
+      <div class="analytics-header-right">
+        <span class="last-refreshed" id="last-refreshed-label">${lastRefreshedTime ? 'Last fetched: ' + lastRefreshedTime : ''}</span>
+        <button class="refresh-btn" onclick="refreshAnalytics()" id="refresh-btn"><span class="refresh-icon">⟳</span> Refresh</button>
+      </div>
+    </div>
+    ${socialTopCard(isLoading)}
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title" style="margin-bottom:14px">PLATFORM BREAKDOWN</div>
+      ${tiktokBlock(isLoading)}
+      ${instagramBlock()}
+      ${youtubeBlock()}
+    </div>`
+}
+
+// ─── LAST REFRESHED ──────────────────────────────────────────────
+function updateLastRefreshed() {
+  const now = new Date()
+  const pht = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 8 * 3600000)
+  lastRefreshedTime = pht.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) + ' PHT'
+  const el  = document.getElementById('last-refreshed-label')
+  const el2 = document.getElementById('last-refreshed-inline')
+  if (el)  el.textContent  = 'Last fetched: ' + lastRefreshedTime
+  if (el2) el2.textContent = 'Updated ' + lastRefreshedTime
+}
+
+// ─── TIKTOK OAUTH FUNCTIONS ──────────────────────────────────────
+function startTikTokOAuth() {
+  const state = crypto.randomUUID()
+  sessionStorage.setItem('tt_state', state)
+  const p = new URLSearchParams({
+    client_key:    TT_CLIENT_KEY,
+    scope:         'user.info.basic,user.info.stats,video.list',
+    response_type: 'code',
+    redirect_uri:  TT_REDIRECT_URI,
+    state
+  })
+  window.location.href = `https://www.tiktok.com/v2/auth/authorize/?${p}`
+}
+window.startTikTokOAuth = startTikTokOAuth
+
+async function exchangeTikTokCode(code) {
+  const res = await fetch(TT_TOKEN_PROXY, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ code, redirect_uri: TT_REDIRECT_URI })
+  })
+  if (!res.ok) {
+    const txt = await res.text().catch(() => res.statusText)
+    throw new Error(`Token exchange failed (${res.status}): ${txt}`)
+  }
+  const data = await res.json()
+  if (data.error) throw new Error(`${data.error}: ${data.detail || ''}`)
+  return data
+}
+
+async function fetchTikTokUserInfo(token) {
+  const headers = { Authorization: `Bearer ${token}` }
+  const fields = 'open_id,display_name,avatar_url,follower_count,following_count,likes_count,video_count'
+  const res = await fetch(`${TT_API_BASE}/user/info/?fields=${fields}`, { headers })
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => res.text())
+    console.error('[TikTok] user/info error:', errBody)
+    throw new Error(`User info failed (${res.status}): ${JSON.stringify(errBody)}`)
+  }
+  const data = await res.json()
+  return data.data?.user || {}
+}
+
+async function fetchAllTikTokVideos(token) {
+  const fields  = 'id,title,video_description,cover_image_url,view_count,like_count,comment_count,create_time'
+  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+  let allVideos = [], cursor = 0, hasMore = true
+  while (hasMore) {
+    const res = await fetch(`${TT_API_BASE}/video/list/?fields=${fields}`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ max_count: 20, cursor })
+    })
+    if (!res.ok) throw new Error(`Video list failed (${res.status})`)
+    const data = await res.json()
+    if (data.error && data.error.code !== 'ok') throw new Error(data.error.message)
+    const page = data.data?.videos || []
+    allVideos = allVideos.concat(page)
+    hasMore   = data.data?.has_more === true
+    cursor    = data.data?.cursor   || 0
+    const el = document.getElementById('tt-loading-msg')
+    if (el) el.textContent = `Loading TikTok analytics... ${allVideos.length} videos`
+    if (!hasMore || page.length === 0) break
+  }
+  return allVideos.sort((a, b) => (b.create_time || 0) - (a.create_time || 0))
+}
+
+async function handleTikTokCallback(code, userId) {
+  try {
+    const td = await exchangeTikTokCode(code)
+    if (!td.access_token) throw new Error('No access_token returned')
+    const [user, vids] = await Promise.all([
+      fetchTikTokUserInfo(td.access_token),
+      fetchAllTikTokVideos(td.access_token)
+    ])
+    await saveTikTokToken(userId, td.access_token, td.open_id)
+    ttOAuthToken = td.access_token
+    updateFollowerHistory(user.follower_count)
+    tiktokLiveData.user   = user
+    tiktokLiveData.videos = vids
+    tiktokLiveData.error  = null
+  } catch (err) {
+    console.error('TikTok callback error:', err)
+    tiktokLiveData.error = err.message
+  }
+}
+
+async function loadTikTokFromSession() {
+  if (!ttOAuthToken) return
+  try {
+    const [user, allVideos] = await Promise.all([
+      fetchTikTokUserInfo(ttOAuthToken),
+      fetchAllTikTokVideos(ttOAuthToken)
+    ])
+    updateFollowerHistory(user.follower_count)
+    tiktokLiveData.user   = user
+    tiktokLiveData.videos = allVideos
+    tiktokLiveData.error  = null
+  } catch (err) {
+    console.error('TikTok session load error:', err)
+    ttOAuthToken         = null
+    tiktokLiveData.error = err.message
+  }
+}
+
+async function refreshAnalytics() {
+  const btn = document.getElementById('refresh-btn')
+  if (btn) btn.classList.add('spinning')
+  if (ttOAuthToken) await loadTikTokFromSession()
+  renderDashboard(false)
+  updateLastRefreshed()
+  if (btn) btn.classList.remove('spinning')
+}
+window.refreshAnalytics = refreshAnalytics
+
+// ─── PHT CLOCK ───────────────────────────────────────────────────
+function tick() {
+  const now = new Date()
+  const pht = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 8 * 3600000)
+  const el = document.getElementById('time-display')
+  if (el) el.textContent = pht.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) + ' PHT'
+}
+tick()
+setInterval(tick, 1000)
+
+// ─── LOGOUT ──────────────────────────────────────────────────────
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await supabase.auth.signOut()
+  window.location.href = '/MoverMetrics/'
+})
+
+// ─── BOOT ────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Auth check
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) {
+    window.location.href = '/MoverMetrics/login/'
+    return
+  }
+
+  const user = session.user
+  document.getElementById('user-email').textContent = user.email
+
+  // 2. Show loading state immediately
+  renderDashboard(true)
+
+  // 3. Handle TikTok OAuth callback
+  const urlParams = new URLSearchParams(window.location.search)
+  const ttCode = urlParams.get('code')
+  if (ttCode) {
+    history.replaceState({}, '', window.location.pathname)
+    document.getElementById('analytics-root').innerHTML =
+      `<div class="loader-wrap">
+        <div class="loader-spinner"></div>
+        <div class="loader-msg" id="tt-loading-msg">Connecting to TikTok...</div>
+        <div class="loader-sub">Fetching your videos — this may take a moment</div>
+      </div>`
+    await handleTikTokCallback(ttCode, user.id)
+  } else {
+    // 4. Load existing token from Supabase
+    ttOAuthToken = await loadTikTokToken(user.id)
+    if (ttOAuthToken) {
+      await loadTikTokFromSession()
+    }
+  }
+
+  renderDashboard(false)
+  updateLastRefreshed()
+})
+</script>
+</body>
+</html>

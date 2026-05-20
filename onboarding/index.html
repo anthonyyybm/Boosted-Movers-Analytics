@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Accounts — MoverMetrics</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2322c55e'/><text y='.9em' font-size='48' font-family='system-ui' font-weight='800' fill='white' x='10' y='72'>MM</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --text3: #484f58;
+      --accent: #22c55e;
+      --accent-hover: #16a34a;
+      --accent-light: #0d2818;
+      --danger: #f85149;
+      --amber: #f59e0b;
+      --radius: 10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: .5px;
+      flex-shrink: 0;
+    }
+    .logo-text { font-size: 14px; font-weight: 700; color: var(--text); }
+    .skip-link {
+      font-size: 13px;
+      color: var(--text2);
+      transition: color .15s;
+    }
+    .skip-link:hover { color: var(--text); }
+
+    /* Page wrapper */
+    .page {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 48px 16px 72px;
+    }
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* Platform cards */
+    .cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+
+    .platform-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .platform-icon { flex-shrink: 0; line-height: 0; }
+    .platform-info { flex: 1; min-width: 0; }
+    .platform-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+    .platform-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+    .badge-connected {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .badge-soon {
+      background: rgba(245, 158, 11, .12);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, .35);
+    }
+    .platform-desc {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    /* Platform buttons */
+    .btn {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+      white-space: nowrap;
+    }
+    .btn-tiktok {
+      background: #010101;
+      color: #fff;
+      border: 1px solid #333;
+    }
+    .btn-tiktok:hover:not(:disabled) { background: #1a1a1a; }
+    .btn-disabled {
+      background: var(--surface2);
+      color: var(--text3);
+      cursor: not-allowed;
+      border: 1px solid var(--border);
+    }
+    .btn:disabled { opacity: .7; cursor: not-allowed; }
+
+    /* Continue button */
+    .btn-continue {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: background .15s;
+      text-decoration: none;
+    }
+    .btn-continue:hover { background: var(--accent-hover); }
+
+    /* Instagram gradient icon */
+    .ig-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ig-icon svg { display: block; }
+
+    /* YouTube icon */
+    .yt-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: #ff0000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .yt-icon svg { display: block; }
+
+    /* Loading state */
+    .loading { opacity: .5; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark">MM</div>
+    <span class="logo-text">MoverMetrics</span>
+  </div>
+  <a class="skip-link" href="/MoverMetrics/dashboard/">Skip for now →</a>
+</header>
+
+<main class="page" id="main-content">
+  <div class="page-header">
+    <h1>Connect your social accounts</h1>
+    <p>Choose which platforms you want to track. You can connect more later from your dashboard.</p>
+  </div>
+
+  <div class="cards" id="cards">
+
+    <!-- TikTok Card -->
+    <div class="platform-card" id="card-tiktok">
+      <div class="platform-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+          <rect width="32" height="32" rx="8" fill="#010101"/>
+          <path d="M22 10.8a6.7 6.7 0 0 1-4.1-5.6H14v13.6a2.7 2.7 0 1 1-2.7-2.7 2.6 2.6 0 0 1 .9.2V12.6a7.2 7.2 0 0 0-1-.1 7.3 7.3 0 1 0 7.3 7.3V13a11 11 0 0 0 6.4 2v-3.7a6.8 6.8 0 0 1-2.9-.5z" fill="white"/>
+        </svg>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name-row">
+          <span class="platform-name">TikTok</span>
+          <span class="badge badge-connected" id="tiktok-badge" style="display:none;">Connected ✓</span>
+        </div>
+        <div class="platform-desc">Track views, likes, followers, and your top videos</div>
+      </div>
+      <button class="btn btn-tiktok" id="tiktok-btn" onclick="startTikTokOAuth()">Connect TikTok</button>
+    </div>
+
+    <!-- Instagram Card -->
+    <div class="platform-card">
+      <div class="platform-icon">
+        <div class="ig-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4.5"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/>
+          </svg>
+        </div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name-row">
+          <span class="platform-name">Instagram</span>
+          <span class="badge badge-soon">Coming Soon</span>
+        </div>
+        <div class="platform-desc">Reels, follower growth, and engagement metrics</div>
+      </div>
+      <button class="btn btn-disabled" disabled>Coming Soon</button>
+    </div>
+
+    <!-- YouTube Card -->
+    <div class="platform-card">
+      <div class="platform-icon">
+        <div class="yt-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 18 14" fill="white">
+            <path d="M17.6 2.2A2.25 2.25 0 0 0 16 .6C14.6.2 9 .2 9 .2s-5.6 0-7 .4A2.25 2.25 0 0 0 .4 2.2C0 3.6 0 6.5 0 6.5s0 2.9.4 4.3A2.25 2.25 0 0 0 2 12.4C3.4 12.8 9 12.8 9 12.8s5.6 0 7-.4a2.25 2.25 0 0 0 1.6-1.6c.4-1.4.4-4.3.4-4.3s0-2.9-.4-4.3z"/>
+            <polygon points="7.2,9.3 11.9,6.5 7.2,3.7" fill="#ff0000"/>
+          </svg>
+        </div>
+      </div>
+      <div class="platform-info">
+        <div class="platform-name-row">
+          <span class="platform-name">YouTube</span>
+          <span class="badge badge-soon">Coming Soon</span>
+        </div>
+        <div class="platform-desc">Subscribers, video views, and channel performance</div>
+      </div>
+      <button class="btn btn-disabled" disabled>Coming Soon</button>
+    </div>
+
+  </div>
+
+  <a class="btn-continue" href="/MoverMetrics/dashboard/">Continue to Dashboard →</a>
+</main>
+
+<script>
+  const SUPABASE_URL = 'https://bmtbzcnrlojacvafyrxi.supabase.co'
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtdGJ6Y25ybG9qYWN2YWZ5cnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDk0MDgsImV4cCI6MjA4OTc4NTQwOH0.wVJas9i0sx3oq3A4BNh2cw5iy4Xgxdb6JDA-68Tw_IQ'
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+  function startTikTokOAuth() {
+    const state = crypto.randomUUID()
+    sessionStorage.setItem('tt_state', state)
+    const p = new URLSearchParams({
+      client_key: 'sbawiohwdjglaeadzv',
+      scope: 'user.info.basic,user.info.stats,video.list',
+      response_type: 'code',
+      redirect_uri: 'https://anthonyyybm.github.io/MoverMetrics/dashboard/',
+      state
+    })
+    window.location.href = `https://www.tiktok.com/v2/auth/authorize/?${p}`
+  }
+
+  async function checkTikTokConnection() {
+    const { data, error } = await supabase
+      .from('user_tokens')
+      .select('platform')
+      .eq('platform', 'tiktok')
+      .maybeSingle()
+
+    if (!error && data) {
+      const badge = document.getElementById('tiktok-badge')
+      const btn = document.getElementById('tiktok-btn')
+      badge.style.display = 'inline-flex'
+      btn.textContent = 'Connected ✓'
+      btn.disabled = true
+      btn.classList.remove('btn-tiktok')
+      btn.classList.add('btn-disabled')
+    }
+  }
+
+  async function init() {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (!session) {
+      window.location.href = '/MoverMetrics/login/'
+      return
+    }
+    await checkTikTokConnection()
+  }
+
+  init()
+</script>
+</body>
+</html>

@@ -3,513 +3,513 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="application-name" content="Boosted Movers Analytics">
-  <title>Boosted Movers Analytics</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%231a7a4a'/><text y='.9em' font-size='52' font-family='system-ui' font-weight='700' fill='white' x='12' y='68'>BM</text></svg>">
+  <title>MoverMetrics — Social Media Analytics for Moving Companies</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2322c55e'/><text y='.9em' font-size='48' font-family='system-ui' font-weight='800' fill='white' x='10' y='72'>MM</text></svg>">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg:#f4f7f5;--surface:#ffffff;--surface2:#f0f4f2;--border:#e0ece6;
-      --text:#1a2e22;--text2:#5a7a68;--text3:#8aaa98;
-      --accent:#1a7a4a;--accent-light:#e8f5ee;--accent-text:#0f5c36;
-      --danger:#c0392b;--danger-light:#fde8e8;
-      --amber:#d97706;--amber-light:#fef3c7;
-      --success:#16a34a;--success-light:#dcfce7;
-      --radius:10px;--shadow:0 1px 4px rgba(0,0,0,.07);
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --text3: #484f58;
+      --accent: #22c55e;
+      --accent-hover: #16a34a;
+      --accent-light: #0d2818;
+      --danger: #f85149;
+      --radius: 10px;
     }
-    body.dark {
-      --bg:#0f1410;--surface:#161e18;--surface2:#1e2a20;--border:#2a3c2e;
-      --text:#e8f0ea;--text2:#7a9a82;--text3:#4a6a52;
-      --accent:#22c55e;--accent-light:#1a2e1e;--accent-text:#4ade80;
-      --danger:#f87171;--danger-light:#2d1b1b;
-      --amber:#fbbf24;--amber-light:#2d2010;
-      --success:#22c55e;--success-light:#1a2e1e;
-      --shadow:0 1px 4px rgba(0,0,0,.25);
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:var(--bg);color:var(--text);line-height:1.5;transition:background .2s,color .2s}
-    a{color:var(--accent);text-decoration:none}
-    button{cursor:pointer;font:inherit;border:none;background:none}
-    input,textarea,select{font:inherit}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:48px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;transition:background .2s,border-color .2s}
-    .topbar-left{display:flex;align-items:center;gap:10px}
-    .logo-mark{width:30px;height:30px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;border-radius:7px;display:flex;align-items:center;justify-content:center;letter-spacing:.5px;flex-shrink:0}
-    .logo-text{font-size:13px;font-weight:600;color:var(--text)}
-    .topbar-right{display:flex;align-items:center;gap:10px}
-    .time-display{font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums}
-    .dark-toggle{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:background .15s}
-    .dark-toggle:hover{background:var(--accent-light)}
-    .content{padding:16px;padding-bottom:52px;max-width:1400px;margin:0 auto}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
-    .card-title{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px}
-    .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-    @media(max-width:900px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
-    .metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:4px}
-    .metric-val{font-size:22px;font-weight:700;color:var(--text)}
-    .metric-sub{font-size:11px;color:var(--text3);margin-top:2px}
-    .progress-wrap{background:var(--surface2);border-radius:6px;height:6px;margin:6px 0;overflow:hidden}
-    .progress-bar{height:100%;background:var(--accent);border-radius:6px;transition:width .6s ease}
-    .skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px}
-    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-    @keyframes ttSpin{to{transform:rotate(360deg)}}
-    .a-metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
-    .a-metric:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
-    .a-chg-pos{font-size:11px;font-weight:600;color:var(--success);margin-top:3px}
-    .a-chg-neg{font-size:11px;font-weight:600;color:var(--danger);margin-top:3px}
-    .a-chg-nil{font-size:11px;color:var(--text3);margin-top:3px}
-    .metric-fade-in{animation:fadeIn .4s ease}
-    .platform-section{padding-bottom:28px;margin-bottom:4px;border-bottom:1px solid var(--border)}
-    .platform-section:last-child{border-bottom:none;padding-bottom:0}
-    .platform-badge{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-    .goals-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
-    .goals-row{margin-bottom:12px}.goals-row:last-child{margin-bottom:0}
-    .goals-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:12px}
-    .goals-label{font-size:13px;color:var(--text)}
-    .goals-progress{font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap}
-    .ag3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
-    .ag6{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
-    @media(max-width:1100px){.ag6{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:900px){.ag3{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:600px){.ag6{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:480px){.ag3{grid-template-columns:1fr}}
-    .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
-    .analytics-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px}
-    .analytics-header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .last-refreshed{font-size:11px;color:var(--text3)}
-    .refresh-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text2);background:var(--surface);cursor:pointer;transition:all .15s}
-    .refresh-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent-text)}
-    .refresh-btn.spinning .refresh-icon{display:inline-block;animation:spin .8s linear infinite}
-    .refresh-btn:disabled{opacity:.5;cursor:default}
-    .data-badge-cached{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;background:var(--amber-light);color:var(--amber);border:1px solid var(--amber);margin-left:8px;vertical-align:middle}
-    .data-badge-live{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;background:var(--success-light);color:var(--success);border:1px solid var(--success);margin-left:8px;vertical-align:middle}
-    .coming-soon-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--amber-light);color:var(--amber);border:1px solid var(--amber);margin-left:8px}
-    .platform-section.coming-soon-section{position:relative}
-    .coming-soon-overlay{position:absolute;inset:0;background:rgba(244,247,245,.55);border-radius:var(--radius);pointer-events:none;z-index:1}
-    body.dark .coming-soon-overlay{background:rgba(15,20,16,.45)}
-    .coming-soon-checklist{margin-top:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)}
-    .check-item{display:flex;align-items:center;gap:7px;font-size:12px;padding:4px 0}
-    .check-item.done{color:var(--success)}.check-item.pending{color:var(--text3)}
-    .platform-connect-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:#010101;color:#fff;border:none;cursor:pointer;transition:opacity .15s;letter-spacing:.2px}
-    .platform-connect-btn:hover{opacity:.82}
-    .platform-connect-btn svg{width:13px;height:13px;flex-shrink:0}
-    .platform-profile-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px}
-    .platform-profile-left{display:flex;align-items:center;gap:10px}
-    .platform-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0}
-    .platform-avatar-placeholder{display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
-    .platform-display-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
-    .platform-handle{font-size:11px;color:var(--text3)}
-    .main-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
-    .main-tab{padding:7px 18px;font-size:12px;font-weight:600;border:none;background:none;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s}
-    .main-tab:hover:not([style*="color:#"]){color:var(--text2)}
-    .sub-tabs{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
-    .sub-tab{padding:4px 14px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s}
-    .range-wrap{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
-    .range-btn{padding:3px 10px;border-radius:5px;font-size:10px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;transition:all .15s}
-    .range-btn.active{background:var(--surface2);border-color:var(--text2);color:var(--text)}
-    .range-btn:hover:not(.active){border-color:var(--text2);color:var(--text2)}
-    .chart-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 8px 6px;overflow:hidden}
-    .metric-inner{display:flex;justify-content:space-between;align-items:flex-end;gap:6px}
-    .metric-inner svg{flex-shrink:0;align-self:flex-end}
-    .top-video-card{display:flex;gap:12px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-left:3px solid #00C2A8;border-radius:var(--radius);padding:12px;margin-bottom:14px}
-    .top-video-badge{display:inline-block;font-size:10px;font-weight:700;background:#00C2A8;color:#fff;padding:2px 8px;border-radius:10px;margin-bottom:6px}
-    .vt-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
-    .vt-row:last-child{border-bottom:none}
-    .vt-thumb{width:32px;height:44px;border-radius:4px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
-    .vt-meta{flex:1;min-width:0}
-    .vt-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .vt-stats{display:flex;gap:8px;font-size:10px;color:var(--text3);margin-bottom:4px;flex-wrap:wrap}
-    .vt-bar-wrap{height:3px;background:var(--border);border-radius:2px}
-    .vt-bar{height:3px;border-radius:2px;transition:width .3s}
-    .vt-date{font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0}
-    .platform-error-state{padding:12px 14px;font-size:12px;color:var(--danger);background:var(--surface2);border:1px solid var(--danger);border-radius:var(--radius);margin-top:8px}
-    .loader-wrap{padding:60px 20px;text-align:center}
-    .loader-spinner{width:36px;height:36px;margin:0 auto 14px;border:3px solid var(--border);border-top-color:#00C2A8;border-radius:50%;animation:ttSpin .75s linear infinite}
-    .loader-msg{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px}
-    .loader-sub{font-size:11px;color:var(--text3)}
-    [data-tooltip]{position:relative}
-    [data-tooltip]::before{content:attr(data-tooltip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(15,15,15,.92);color:#fff;font-size:10px;line-height:1.5;padding:6px 10px;border-radius:6px;width:180px;text-align:center;pointer-events:none;opacity:0;transition:opacity .18s;z-index:300;white-space:normal;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-    [data-tooltip]::after{content:'';position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:rgba(15,15,15,.92);pointer-events:none;opacity:0;transition:opacity .18s;z-index:300}
-    [data-tooltip]:hover::before,[data-tooltip]:hover::after{opacity:1}
-    body.dark [data-tooltip]::before{background:rgba(50,50,50,.97)}
-    body.dark [data-tooltip]::after{border-top-color:rgba(50,50,50,.97)}
-    .social-top-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:20px}
-    .social-top-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-    .social-top-title{font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px}
-    .social-platforms-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    @media(max-width:600px){.social-platforms-row{grid-template-columns:1fr}}
-    .social-platform-cell{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px}
-    .social-platform-cell.coming-soon-cell{opacity:.55}
-    .social-cell-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
-    .social-cell-name{font-size:11px;color:var(--text3);margin-bottom:2px}
-    .social-cell-val{font-size:18px;font-weight:700;color:var(--text);line-height:1}
-    .social-cell-sub{font-size:10px;color:var(--text3);margin-top:1px}
-    .site-footer{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 16px;transition:background .2s,border-color .2s}
-    .site-footer a{color:var(--text2);font-size:12px;text-decoration:underline;text-underline-offset:3px}
-    .site-footer a:hover{color:var(--accent)}
-    .site-footer span{font-size:12px;color:var(--text3)}
-    .company-onboard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
-    .company-welcome{background:var(--accent-light);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13, 17, 23, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: .5px;
+      flex-shrink: 0;
+    }
+
+    .nav-brand-name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s, color .15s, border-color .15s, opacity .15s;
+      white-space: nowrap;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--text3);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-lg {
+      font-size: 16px;
+      padding: 13px 28px;
+      border-radius: 12px;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(48, 54, 61, 0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(48, 54, 61, 0.35) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 32px;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.08;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: clamp(18px, 2.5vw, 22px);
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 16px;
+      letter-spacing: -.3px;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--text2);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* FEATURES */
+    .section {
+      padding: 96px 24px;
+    }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .section-desc {
+      text-align: center;
+      color: var(--text2);
+      font-size: 16px;
+      max-width: 520px;
+      margin: 0 auto 56px;
+      line-height: 1.7;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      transition: border-color .2s, transform .2s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(34, 197, 94, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+      letter-spacing: -.3px;
+    }
+
+    .feature-desc {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.65;
+    }
+
+    /* HOW IT WORKS */
+    .how-section {
+      padding: 96px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-light);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .step-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .step-desc {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* CTA SECTION */
+    .cta-section {
+      padding: 96px 24px;
+      text-align: center;
+    }
+
+    .cta-box {
+      max-width: 640px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 56px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .cta-box h2 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .cta-box p {
+      color: var(--text2);
+      font-size: 15px;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+      text-align: center;
+      color: var(--text3);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    footer a {
+      color: var(--text3);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    footer a:hover { color: var(--text2); }
+
+    .footer-sep { color: var(--text3); }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 16px; }
+      .nav-brand-name { display: none; }
+      .hero-actions { flex-direction: column; width: 100%; }
+      .hero-actions .btn { width: 100%; max-width: 320px; }
+      .cta-box { padding: 36px 24px; }
+    }
   </style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="topbar-left">
-    <div class="logo-mark">BM</div>
-    <span class="logo-text">Boosted Movers Analytics</span>
-  </div>
-  <div class="topbar-right">
-    <div class="time-display" id="time-display">—</div>
-    <button class="dark-toggle" id="dark-toggle" title="Toggle dark mode">🌙</button>
-  </div>
-</header>
-
-<main class="content">
-  <div id="analytics-root"></div>
-</main>
-
-<footer class="site-footer">
-  <a href="/terms">Terms of Service</a>
-  <a href="/privacy">Privacy Policy</a>
-  <span>&copy; 2026 Boosted Movers Analytics</span>
-</footer>
-
-<script>
-// ─── DARK MODE ────────────────────────────────────────────────────
-;(function(){const s=localStorage.getItem('bma_dark');if(s==='1')document.body.classList.add('dark')})()
-function toggleDark(){const d=document.body.classList.toggle('dark');localStorage.setItem('bma_dark',d?'1':'0');document.getElementById('dark-toggle').innerHTML=d?'&#x2600;&#xFE0F;':'&#x1F319;'}
-document.getElementById('dark-toggle').addEventListener('click',toggleDark)
-;(function(){if(document.body.classList.contains('dark'))document.getElementById('dark-toggle').innerHTML='&#x2600;&#xFE0F;'})()
-
-// ─── TIME ─────────────────────────────────────────────────────────
-function updateTime(){const el=document.getElementById('time-display');if(!el)return;const now=new Date(),pht=new Date(now.getTime()+now.getTimezoneOffset()*60000+8*3600000);el.textContent=pht.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})+' PHT'}
-updateTime();setInterval(updateTime,1000)
-
-// ─── CONFIG ───────────────────────────────────────────────────────
-const TT_CLIENT_KEY='sbawiohwdjglaeadzv'
-const TT_REDIRECT_URI='https://anthonyyybm.github.io/MoverMetrics/'
-const TT_TOKEN_PROXY='https://bmtbzcnrlojacvafyrxi.supabase.co/functions/v1/tiktok-token-exchange'
-const TT_API_BASE='https://open.tiktokapis.com/v2'
-const YOUTUBE_API_KEY='%%YOUTUBE_API_KEY%%'
-const YOUTUBE_CHANNEL_ID='%%YOUTUBE_CHANNEL_ID%%'
-const PLATFORMS={instagram:{name:'Instagram',abbr:'IG',color:'#E1306C'},youtube:{name:'YouTube',abbr:'YT',color:'#FF0000'},tiktok:{name:'TikTok',abbr:'TT',color:'#00C2A8'}}
-
-// ─── STATIC FALLBACK DATA ─────────────────────────────────────────
-const analyticsData={week_label:'W3 April',last_updated:'April 15, 2026',platforms:{
-  instagram:{followers:1362,followers_change:2.0,avg_views:580,avg_views_change:11.5,posts_this_week:3,posts_change:-25.0,engagement_rate:3.3,engagement_change:6.5,weekly_data:{followers:[1280,1295,1310,1325,1340,1352,1362],views:[420,380,510,490,530,560,580]},goals:[{label:'3 reels with 1,000+ views',current:1,target:3}]},
-  youtube:{subscribers:122,subscribers_change:6.1,avg_views:385,avg_views_change:13.2,videos_this_week:2,videos_change:-33.3,engagement_rate:2.7,engagement_change:8.0,weekly_data:{subscribers:[98,103,108,112,116,119,122],views:[290,310,340,355,360,372,385]},goals:[{label:'3 videos with 1,000+ views',current:0,target:3}]},
-  tiktok:{followers:34,followers_change:9.7,avg_views:750,avg_views_change:8.7,videos_this_week:4,videos_change:-20.0,engagement_rate:4.6,engagement_change:4.5,weekly_data:{followers:[22,24,27,29,31,33,34],views:[580,610,650,690,710,730,750]},goals:[{label:'50 followers',current:34,target:50}]}
-}}
-
-// ─── STATE ────────────────────────────────────────────────────────
-let ytDataStatus='default',ttDataStatus='default',lastRefreshedTime=null
-let ttOAuthToken=localStorage.getItem('tt_access_token')||null
-let tiktokLiveData={user:null,videos:[],error:null}
-let youtubeLiveData={channel:null,videos:[],error:null}
-function curMonth(){const n=new Date();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`}
-const pState={
-  tt:{activeTab:'last5',mainTab:'overview',chartMetric:'views',chartRange:'all',videoPage:0,monthFilter:curMonth()},
-  yt:{activeTab:'last5',mainTab:'overview',chartMetric:'views',chartRange:'all',videoPage:0,monthFilter:curMonth()}
-}
-
-// ─── GENERIC HELPERS ──────────────────────────────────────────────
-function fmtNum(n){if(n===null||n===undefined)return'--';if(typeof n!=='number')return String(n);if(n>=1000)return(n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'')+' K';return String(n)}
-function changeEl(v){if(v===null||v===undefined)return'<div class="a-chg-nil">vs last week</div>';const pos=v>=0;return`<div class="${pos?'a-chg-pos':'a-chg-neg'}">${pos?'&uarr;':'&darr;'} ${pos?'+':''}${Math.abs(v).toFixed(1)}%</div>`}
-function sparklineSVG(data,color){if(!data||data.length<2)return'<div style="width:80px;height:40px"></div>';const W=80,H=40,P=3,lo=Math.min(...data),hi=Math.max(...data),rng=hi-lo||1;const pts=data.map((v,i)=>[P+(i/(data.length-1))*(W-P*2),H-P-((v-lo)/rng)*(H-P*2)]);let line=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;for(let i=1;i<pts.length;i++){const cx=((pts[i-1][0]+pts[i][0])/2).toFixed(1);line+=` C${cx},${pts[i-1][1].toFixed(1)} ${cx},${pts[i][1].toFixed(1)} ${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)}`}const area=`${line} L${pts[pts.length-1][0].toFixed(1)},${H} L${pts[0][0].toFixed(1)},${H}Z`;return`<svg width="80" height="40" viewBox="0 0 80 40" style="display:block"><path d="${area}" fill="${color}" fill-opacity="0.18"/><path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/></svg>`}
-function skeletonVal(){return'<div class="skeleton" style="height:1.6rem;width:55%;margin:6px 0 4px"></div>'}
-function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function fmtN(n){if(!n&&n!==0)return'--';const v=Number(n);if(v>=1000000)return(v/1000000).toFixed(1).replace(/\.0$/,'')+'M';if(v>=1000)return(v/1000).toFixed(1).replace(/\.0$/,'')+'K';return String(v)}
-function fmtDate(ts){if(!ts)return'';const d=new Date(Number(ts)*1000);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-function updateFollowerHistory(count){const today=new Date().toISOString().split('T')[0];let h=JSON.parse(localStorage.getItem('tt_follower_history')||'[]');const last=h[h.length-1];if(!last||last.date!==today){h.push({date:today,count:Number(count)||0});if(h.length>60)h=h.slice(-60);localStorage.setItem('tt_follower_history',JSON.stringify(h))}return h}
-function getFollowerHistory(){return JSON.parse(localStorage.getItem('tt_follower_history')||'[]')}
-
-// ─── CHART HELPERS ────────────────────────────────────────────────
-function groupByMonth(videos){const map={};videos.forEach(v=>{if(!v.create_time)return;const d=new Date(Number(v.create_time)*1000),key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,lbl=d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});if(!map[key])map[key]={key,label:lbl,videos:[],views:0,likes:0,comments:0,count:0};map[key].videos.push(v);map[key].views+=v.view_count||0;map[key].likes+=v.like_count||0;map[key].comments+=v.comment_count||0;map[key].count+=1});return Object.values(map).sort((a,b)=>a.key.localeCompare(b.key))}
-function miniSparkline(values,color,w=72,h=32){if(!values||values.length<2)return`<div style="width:${w}px;height:${h}px"></div>`;const lo=0,hi=Math.max(...values,1),P=2,pts=values.map((v,i)=>[P+(i/(values.length-1))*(w-P*2),P+(1-v/hi)*(h-P*2)]);let line=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;for(let i=1;i<pts.length;i++){const cx=((pts[i-1][0]+pts[i][0])/2).toFixed(1);line+=` C${cx},${pts[i-1][1].toFixed(1)} ${cx},${pts[i][1].toFixed(1)} ${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)}`}const area=`${line} L${pts[pts.length-1][0].toFixed(1)},${h} L${pts[0][0].toFixed(1)},${h}Z`;return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;flex-shrink:0"><path d="${area}" fill="${color}" fill-opacity="0.15"/><path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/><circle cx="${pts[pts.length-1][0].toFixed(1)}" cy="${pts[pts.length-1][1].toFixed(1)}" r="2.5" fill="${color}"/></svg>`}
-function groupByDay(videos,filterMonth){const map={};videos.forEach(v=>{if(!v.create_time)return;const d=new Date(Number(v.create_time)*1000),mKey=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(filterMonth&&mKey!==filterMonth)return;const key=d.toISOString().split('T')[0],lbl=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});if(!map[key])map[key]={key,label:lbl,views:0,likes:0,comments:0,count:0};map[key].views+=v.view_count||0;map[key].likes+=v.like_count||0;map[key].comments+=v.comment_count||0;map[key].count+=1});return Object.values(map).sort((a,b)=>a.key.localeCompare(b.key))}
-function enrichData(data){return data.map(m=>({...m,avg:m.count?Math.round(m.views/m.count):0,eng:m.views>0?+((m.likes+m.comments)/m.views*100).toFixed(2):0}))}
-function getChartData(videos,range){const now=new Date();if(range==='month'){const cm=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;return enrichData(groupByDay(videos,cm))}const byM=groupByMonth(videos);if(range==='all')return enrichData(byM);const n=range==='6m'?6:3,cutoff=new Date(now);cutoff.setMonth(cutoff.getMonth()-n);const ck=`${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}`;return enrichData(byM.filter(m=>m.key>=ck))}
-function renderLineChart(data,valueKey,color){if(!data||data.length<2)return'<div style="padding:20px;text-align:center;font-size:11px;color:var(--text3)">Not enough data for this range.</div>';const W=500,H=80,PL=24,PR=4,PT=6,PB=16,vals=data.map(m=>m[valueKey]||0),hi=Math.max(...vals,1),cw=W-PL-PR,ch=H-PT-PB;const pts=data.map((m,i)=>[PL+(i/(data.length-1))*cw,PT+(1-(m[valueKey]||0)/hi)*ch]);let line=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;for(let i=1;i<pts.length;i++){const cx=((pts[i-1][0]+pts[i][0])/2).toFixed(1);line+=` C${cx},${pts[i-1][1].toFixed(1)} ${cx},${pts[i][1].toFixed(1)} ${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)}`}const area=`${line} L${pts[pts.length-1][0].toFixed(1)},${H-PB} L${pts[0][0].toFixed(1)},${H-PB}Z`;const xLbl=data.map((m,i)=>`<text x="${pts[i][0].toFixed(1)}" y="${H-PB+11}" text-anchor="middle" font-size="5" fill="var(--text3)" font-family="system-ui">${m.label}</text>`).join('');const yTk=[0,.5,1].map(t=>{const y=(PT+(1-t)*ch).toFixed(1),v=Math.round(hi*t),lbl=v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(1)+'K':String(v);return`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,4"/><text x="${PL-3}" y="${(+y+2).toFixed(1)}" text-anchor="end" font-size="5" fill="var(--text3)" font-family="system-ui">${lbl}</text>`}).join('');const dots=pts.map((pt,i)=>{const v=data[i][valueKey]||0,fv=valueKey==='eng'?v.toFixed(2)+'%':(v>=1000?(v/1000).toFixed(1)+'K':String(v)),tip=(data[i].label+': '+fv).replace(/'/g,"&#39;");return`<g onmouseover="showChartTip(event,'${tip}')" onmouseout="hideChartTip()" style="cursor:pointer"><circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="7" fill="transparent"/><circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="2.5" fill="${color}" stroke="var(--surface2)" stroke-width="1.5"/></g>`}).join('');return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" preserveAspectRatio="xMidYMid meet">${yTk}<path d="${area}" fill="${color}" fill-opacity="0.1"/><path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>${dots}${xLbl}</svg>`}
-function genInsight(data,valueKey){if(!data||data.length<2)return'';const vals=data.map(m=>m[valueKey]||0),n=vals.length,first=vals[0],last=vals[n-1],maxVal=Math.max(...vals),maxIdx=vals.lastIndexOf(maxVal),avg=vals.reduce((a,b)=>a+b,0)/n,oPct=first>0?Math.round((last-first)/first*100):0,isEng=valueKey==='eng',fmt=v=>isEng?v.toFixed(1)+'%':(v>=1000?(v/1000).toFixed(1)+'K':String(Math.round(v))),rUp=n>=2&&last>vals[n-2]*1.15,rDown=n>=2&&last<vals[n-2]*0.85;let t='';if(oPct>=50){t=`Strong growth -- up ${oPct}% from ${data[0].label} to ${data[n-1].label}.`;if(rDown)t+=' Momentum slowing.'}else if(oPct>=15){t=`Gradual growth of ${oPct}% over this period.`;if(rUp)t+=' Accelerating recently.'}else if(oPct<=-15){t=`Declining trend, down ${Math.abs(oPct)}%.`;if(rUp)t+=' Latest period shows recovery.'}else{t=`Stable -- ${oPct>=0?'up '+oPct:'down '+Math.abs(oPct)}% overall.`}if(maxVal>avg*1.5&&!t.includes(data[maxIdx].label))t+=` Best: ${data[maxIdx].label} (${fmt(maxVal)}).`;return t}
-
-// ─── GENERIC PLATFORM RENDERERS ───────────────────────────────────
-function renderVideoTableRows(videos,allVideos,c){
-  if(!videos||!videos.length)return'<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3)">No videos found</div>'
-  const mx=Math.max(...allVideos.map(v=>v.view_count||0),1)
-  return videos.map(v=>{const title=escH(v.title||v.video_description||'(No title)'),bp=Math.round(((v.view_count||0)/mx)*100),thumb=v.cover_image_url?`<img src="${escH(v.cover_image_url)}" class="vt-thumb" alt="">`:`<div class="vt-thumb" style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)">&#9654;</div>`;return`<div class="vt-row">${thumb}<div class="vt-meta"><div class="vt-title" title="${title}">${title}</div><div class="vt-stats"><span>&#128065; ${fmtN(v.view_count)}</span><span>&#10084; ${fmtN(v.like_count)}</span><span>&#128172; ${fmtN(v.comment_count)}</span></div><div class="vt-bar-wrap"><div class="vt-bar" style="width:${bp}%;background:${c||'#00C2A8'}"></div></div></div><div class="vt-date">${fmtDate(v.create_time)}</div></div>`}).join('')
-}
-function renderPaginatedTable(pfx,pool,all,page,ps,c){
-  const tp=Math.ceil(pool.length/ps),rows=renderVideoTableRows(pool.slice(page*ps,(page+1)*ps),all,c)
-  if(tp<=1)return rows
-  return`${rows}<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)"><button class="refresh-btn" style="font-size:11px;padding:3px 10px" onclick="setVideoPage('${pfx}',${page-1})"${page===0?' disabled':''}>&#8592; Prev</button><span style="font-size:11px;color:var(--text3)">Page ${page+1} of ${tp} &middot; ${pool.length} videos</span><button class="refresh-btn" style="font-size:11px;padding:3px 10px" onclick="setVideoPage('${pfx}',${page+1})"${page>=tp-1?' disabled':''}>Next &#8594;</button></div>`
-}
-function renderMonthlyTopVideo(pfx,videos,selectedMonth,c){
-  const byM=groupByMonth(videos)
-  if(!byM.length)return'<div style="padding:12px;text-align:center;font-size:12px;color:var(--text3)">No video data available</div>'
-  const opts=byM.slice().reverse().map(m=>`<option value="${m.key}"${m.key===selectedMonth?' selected':''}>${m.label}</option>`).join('')
-  const md=byM.find(m=>m.key===selectedMonth)
-  let card
-  if(!md||!md.videos.length){card=`<div style="padding:14px;text-align:center;font-size:12px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">No videos posted this month</div>`}
-  else{const top=md.videos.reduce((a,b)=>(b.view_count||0)>(a.view_count||0)?b:a),thumb=top.cover_image_url?`<img src="${escH(top.cover_image_url)}" style="width:56px;height:78px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)" alt="">`:`<div style="width:56px;height:78px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:var(--text3)">&#9654;</div>`;card=`<div class="top-video-card" style="border-left-color:${c||'#00C2A8'}">${thumb}<div style="flex:1;min-width:0"><div class="top-video-badge" style="background:${c||'#00C2A8'}">&#127942; Top Video &mdash; ${md.label}</div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:7px;line-height:1.4">${escH(top.title||top.video_description||'(No title)')}</div><div style="display:flex;gap:12px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text2)">&#128065; <strong>${fmtN(top.view_count)}</strong></span><span style="font-size:11px;color:var(--text2)">&#10084; <strong>${fmtN(top.like_count)}</strong></span><span style="font-size:11px;color:var(--text2)">&#128172; <strong>${fmtN(top.comment_count)}</strong></span>${top.create_time?`<span style="font-size:11px;color:var(--text3)">${fmtDate(top.create_time)}</span>`:''}</div></div></div>`}
-  return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);font-weight:700">&#127942; Top Video of the Month</div><select onchange="setMonthFilter('${pfx}',this.value)" style="font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);cursor:pointer;outline:none">${opts}</select></div>${card}`
-}
-function renderTrendsTab(pfx,videos,c){
-  const s=pState[pfx],MC=[{key:'views',label:'Views',color:c||'#00C2A8'},{key:'likes',label:'Likes',color:'#f43f5e'},{key:'comments',label:'Comments',color:'#8b5cf6'},{key:'avg',label:'Avg Views',color:'#f59e0b'},{key:'eng',label:'Engagement',color:'#3b82f6'}],RC=[{key:'all',label:'All Time'},{key:'6m',label:'Last 6 Mo'},{key:'3m',label:'Last 3 Mo'},{key:'month',label:'This Month'}]
-  const data=getChartData(videos,s.chartRange),mc=MC.find(m=>m.key===s.chartMetric)||MC[0]
-  const mTabs=MC.map(m=>`<button class="sub-tab" onclick="switchChartMetric('${pfx}','${m.key}')" style="${s.chartMetric===m.key?`background:${m.color};color:#fff;border-color:${m.color}`:''}">${m.label}</button>`).join('')
-  const rBtns=RC.map(r=>`<button class="range-btn${s.chartRange===r.key?' active':''}" onclick="switchChartRange('${pfx}','${r.key}')">${r.label}</button>`).join('')
-  const ins=data.length>=2?genInsight(data,mc.key):'',rl=RC.find(r=>r.key===s.chartRange)?.label||''
-  const legend=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:${ins?'5px':'6px'}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);font-weight:600"><span style="width:14px;height:2px;background:${mc.color};border-radius:1px;display:inline-block"></span>${mc.label}</span><span style="font-size:10px;color:var(--text3)">&middot; ${rl} &middot; ${data.length} pts</span></div>${ins?`<p style="font-size:10px;font-style:italic;color:var(--text3);margin:0 0 7px;line-height:1.5">${escH(ins)}</p>`:''}`
-  const chart=data.length<2?`<div style="padding:20px;text-align:center;font-size:11px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">Not enough data for this time range</div>`:`<div class="chart-wrap">${legend}${renderLineChart(data,mc.key,mc.color)}</div>`
-  return`<div class="sub-tabs" style="flex-wrap:wrap;gap:5px;margin-bottom:10px">${mTabs}</div><div class="range-wrap">${rBtns}</div>${chart}`
-}
-function renderOverviewContent(pfx,user,videos,c,isYT){
-  const s=pState[pfx],byM=groupByMonth(videos)
-  const tv=videos.reduce((a,v)=>a+(v.view_count||0),0),tl=videos.reduce((a,v)=>a+(v.like_count||0),0),tc=videos.reduce((a,v)=>a+(v.comment_count||0),0)
-  const avgV=videos.length?Math.round(tv/videos.length):0,eng=tv>0?((tl+tc)/tv*100).toFixed(2):'0.00'
-  const mV=byM.map(m=>m.views),mL=byM.map(m=>m.likes),mC=byM.map(m=>m.comments),mA=byM.map(m=>m.count?Math.round(m.views/m.count):0),mE=byM.map(m=>m.views>0?+((m.likes+m.comments)/m.views*100).toFixed(2):0)
-  const fc=user.follower_count||user.subscriber_count||0,fLabel=isYT?'SUBSCRIBERS':'FOLLOWERS'
-  const fH=isYT?[]:getFollowerHistory(),mF=fH.length>=2?fH.map(h=>h.count):[],fSub=isYT?`${fmtN(user.video_count||0)} total videos`:(mF.length>=2?mF.length+' day history':'account total')
-  const tbl=s.activeTab==='last5'?renderVideoTableRows(videos.slice(0,5),videos,c):renderPaginatedTable(pfx,s.activeTab==='all'?videos:videos.slice(0,20),videos,s.videoPage,5,c)
-  const tabStyle=(key)=>s.activeTab===key?`background:${c};color:#fff;border-color:${c}`:''
-  return`<div class="ag6" style="margin-bottom:14px">
-    <div class="a-metric metric-fade-in" data-tooltip="${fmtN(fc)} ${isYT?'subscribers':'followers'}."><div class="metric-label">${fLabel}</div><div class="metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(fc)}</div><div class="metric-sub">${fSub}</div></div>${mF.length>=2?miniSparkline(mF,c||'#00C2A8'):''}</div></div>
-    <div class="a-metric metric-fade-in"><div class="metric-label">TOTAL VIEWS</div><div class="metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(tv)}</div><div class="metric-sub">all ${videos.length} videos</div></div>${miniSparkline(mV,c||'#00C2A8')}</div></div>
-    <div class="a-metric metric-fade-in"><div class="metric-label">TOTAL LIKES</div><div class="metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(tl)}</div><div class="metric-sub">all videos</div></div>${miniSparkline(mL,'#f43f5e')}</div></div>
-    <div class="a-metric metric-fade-in"><div class="metric-label">TOTAL COMMENTS</div><div class="metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(tc)}</div><div class="metric-sub">all videos</div></div>${miniSparkline(mC,'#8b5cf6')}</div></div>
-    <div class="a-metric metric-fade-in"><div class="metric-label">AVG VIEWS</div><div class="metric-inner"><div><div class="metric-val" style="margin-top:4px">${fmtN(avgV)}</div><div class="metric-sub">${videos.length} videos</div></div>${miniSparkline(mA,'#f59e0b')}</div></div>
-    <div class="a-metric metric-fade-in"><div class="metric-label">ENGAGEMENT RATE</div><div class="metric-inner"><div><div class="metric-val" style="margin-top:4px">${eng}%</div><div class="metric-sub">(likes+comments)/views</div></div>${miniSparkline(mE,'#3b82f6')}</div></div>
-  </div>
-  <div id="${pfx}-monthly-top" style="margin-bottom:16px">${renderMonthlyTopVideo(pfx,videos,s.monthFilter,c)}</div>
-  <div class="sub-tabs">
-    <button class="sub-tab" data-${pfx}-tab="last5" onclick="switchVideoTab('${pfx}','last5')" style="${tabStyle('last5')}">Last 5</button>
-    <button class="sub-tab" data-${pfx}-tab="last20" onclick="switchVideoTab('${pfx}','last20')" style="${tabStyle('last20')}">Last 20</button>
-    <button class="sub-tab" data-${pfx}-tab="all" onclick="switchVideoTab('${pfx}','all')" style="${tabStyle('all')}">All Videos</button>
-    <span style="margin-left:auto;font-size:10px;color:var(--text3);align-self:center">${videos.length} total</span>
-  </div>
-  <div id="${pfx}-video-table">${tbl}</div>`
-}
-
-// ─── GENERIC SWITCH HANDLERS ──────────────────────────────────────
-function switchVideoTab(pfx,tab){
-  const s=pState[pfx];s.activeTab=tab;s.videoPage=0
-  const live=pfx==='tt'?tiktokLiveData:youtubeLiveData,c=pfx==='tt'?'#00C2A8':'#FF0000'
-  const el=document.getElementById(`${pfx}-video-table`)
-  if(el){if(tab==='last5')el.innerHTML=renderVideoTableRows(live.videos.slice(0,5),live.videos,c);else{const p=tab==='all'?live.videos:live.videos.slice(0,20);el.innerHTML=renderPaginatedTable(pfx,p,live.videos,0,5,c)}}
-  document.querySelectorAll(`[data-${pfx}-tab]`).forEach(btn=>{const a=btn.getAttribute(`data-${pfx}-tab`)===tab;btn.style.background=a?c:'';btn.style.color=a?'#fff':'';btn.style.borderColor=a?c:''})
-}
-window.switchVideoTab=switchVideoTab
-function switchMainTab(pfx,tab){
-  pState[pfx].mainTab=tab
-  const live=pfx==='tt'?tiktokLiveData:youtubeLiveData,c=pfx==='tt'?'#00C2A8':'#FF0000'
-  const el=document.getElementById(`${pfx}-main-content`)
-  if(!el||(pfx==='tt'&&!live.user)||(pfx==='yt'&&!live.channel)){renderDashboard(false);return}
-  el.innerHTML=tab==='trends'?renderTrendsTab(pfx,live.videos,c):renderOverviewContent(pfx,live.user||live.channel,live.videos,c,pfx==='yt')
-  document.querySelectorAll(`[data-${pfx}-tab]`).forEach(btn=>{const a=btn.getAttribute(`data-${pfx}-tab`)===tab;btn.style.color=a?c:'';btn.style.borderBottomColor=a?c:'transparent'})
-}
-window.switchMainTab=switchMainTab
-function switchChartMetric(pfx,m){pState[pfx].chartMetric=m;const live=pfx==='tt'?tiktokLiveData:youtubeLiveData,c=pfx==='tt'?'#00C2A8':'#FF0000',el=document.getElementById(`${pfx}-main-content`);if(el)el.innerHTML=renderTrendsTab(pfx,live.videos,c)}
-window.switchChartMetric=switchChartMetric
-function switchChartRange(pfx,r){pState[pfx].chartRange=r;const live=pfx==='tt'?tiktokLiveData:youtubeLiveData,c=pfx==='tt'?'#00C2A8':'#FF0000',el=document.getElementById(`${pfx}-main-content`);if(el)el.innerHTML=renderTrendsTab(pfx,live.videos,c)}
-window.switchChartRange=switchChartRange
-function setVideoPage(pfx,page){pState[pfx].videoPage=page;const live=pfx==='tt'?tiktokLiveData:youtubeLiveData,c=pfx==='tt'?'#00C2A8':'#FF0000',el=document.getElementById(`${pfx}-video-table`);if(!el)return;const pool=pState[pfx].activeTab==='all'?live.videos:live.videos.slice(0,20);el.innerHTML=renderPaginatedTable(pfx,pool,live.videos,page,5,c)}
-window.setVideoPage=setVideoPage
-function setMonthFilter(pfx,v){pState[pfx].monthFilter=v;const live=pfx==='tt'?tiktokLiveData:youtubeLiveData,c=pfx==='tt'?'#00C2A8':'#FF0000',el=document.getElementById(`${pfx}-monthly-top`);if(el)el.innerHTML=renderMonthlyTopVideo(pfx,live.videos,v,c)}
-window.setMonthFilter=setMonthFilter
-function showChartTip(evt,text){let t=document.getElementById('chart-tip');if(!t){t=document.createElement('div');t.id='chart-tip';t.style.cssText='position:fixed;background:rgba(15,15,15,.92);color:#fff;font-size:10px;line-height:1.4;padding:5px 9px;border-radius:5px;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:opacity .1s';document.body.appendChild(t)}t.textContent=text;t.style.opacity='1';t.style.left=(evt.clientX+14)+'px';t.style.top=(evt.clientY-36)+'px'}
-window.showChartTip=showChartTip
-function hideChartTip(){const t=document.getElementById('chart-tip');if(t)t.style.opacity='0'}
-window.hideChartTip=hideChartTip
-
-// ─── PLATFORM ICONS ───────────────────────────────────────────────
-function platformIcon(key,size){
-  const s=size||32,r=Math.round(s*0.28)
-  const icons={
-    youtube:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}"><rect width="${s}" height="${s}" rx="${r}" fill="#FF0000"/><path d="M${s*.83} ${s*.375}a${s*.083} ${s*.083} 0 0 0-${s*.058}-${s*.058}C${s*.729} ${s*.25} ${s*.5} ${s*.25} ${s*.5} ${s*.25}s-${s*.229} 0-${s*.271} ${s*.067}a${s*.083} ${s*.083} 0 0 0-${s*.058} ${s*.058}C${s*.146} ${s*.417} ${s*.146} ${s*.5} ${s*.146} ${s*.5}s0 ${s*.083} ${s*.025} ${s*.125}a${s*.083} ${s*.083} 0 0 0 ${s*.058} ${s*.058}C${s*.271} ${s*.75} ${s*.5} ${s*.75} ${s*.5} ${s*.75}s${s*.229} 0 ${s*.271}-${s*.067}a${s*.083} ${s*.083} 0 0 0 ${s*.058}-${s*.058}C${s*.854} ${s*.583} ${s*.854} ${s*.5} ${s*.854} ${s*.5}s0-${s*.083}-${s*.021}-${s*.125}zM${s*.417} ${s*.625}v-${s*.25}L${s*.625} ${s*.5}z" fill="white"/></svg>`,
-    tiktok:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}"><rect width="${s}" height="${s}" rx="${r}" fill="#010101"/><path d="M${s*.688} ${s*.344}a${s*.208} ${s*.208} 0 0 1-${s*.129}-${s*.177}V${s*.167}h-${s*.144}v${s*.569}a${s*.183} ${s*.183} 0 1 1-${s*.158}-${s*.18}v${s*.159}a${s*.183} ${s*.183} 0 0 0-${s*.033}-${s*.003} ${s*.183} ${s*.183} 0 1 0 ${s*.183} ${s*.183}V${s*.344}a${s*.35} ${s*.35} 0 0 0 ${s*.199} ${s*.063}v-${s*.144}a${s*.208} ${s*.208} 0 0 1-${s*.042}-${s*.004}l${s*.042} ${s*.085}z" fill="white"/><path d="M${s*.646} ${s*.302}a${s*.208} ${s*.208} 0 0 0 ${s*.128} ${s*.042}" stroke="#69C9D0" stroke-width="${s*.04}" fill="none" stroke-linecap="round"/></svg>`,
-    instagram:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}"><defs><linearGradient id="ig-${size||32}" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect width="${s}" height="${s}" rx="${r}" fill="url(#ig-${size||32})"/><rect x="${s*.229}" y="${s*.229}" width="${s*.542}" height="${s*.542}" rx="${s*.146}" stroke="white" stroke-width="${s*.063}" fill="none"/><circle cx="${s*.5}" cy="${s*.5}" r="${s*.188}" stroke="white" stroke-width="${s*.063}" fill="none"/><circle cx="${s*.688}" cy="${s*.313}" r="${s*.052}" fill="white"/></svg>`
-  }
-  return icons[key]||''
-}
-
-// ─── METRIC CARD AND GOALS ────────────────────────────────────────
-function metricCard(label,value,change,sparkData,color,isLoading){const spark=sparkData?sparklineSVG(sparkData,color):'<div style="width:80px;height:40px"></div>';const display=isLoading?skeletonVal():(typeof value==='string'?value:fmtNum(value));const chg=isLoading?'<div class="a-chg-nil">loading...</div>':changeEl(change);return`<div class="a-metric${isLoading?'':' metric-fade-in'}"><div class="metric-label">${label}</div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px"><div><div class="metric-val">${display}</div>${chg}</div><div style="flex-shrink:0;margin-left:8px;align-self:flex-end">${isLoading?'':spark}</div></div></div>`}
-function goalsCard(goals,color){return`<div class="goals-card"><div class="card-title">APRIL GOALS</div>${goals.map(g=>{const p=Math.min(100,Math.round((g.current/g.target)*100));return`<div class="goals-row"><div class="goals-meta"><span class="goals-label">${g.label}</span><span class="goals-progress">${g.current}/${g.target} (${p}%)</span></div><div class="progress-wrap"><div class="progress-bar" style="width:${p}%;background:${color}"></div></div></div>`}).join('')}</div>`}
-
-// ─── TIKTOK BLOCK ─────────────────────────────────────────────────
-function tiktokBlock(isLoading){
-  const cfg=PLATFORMS.tiktok,d=analyticsData.platforms.tiktok,c=cfg.color,connected=!!ttOAuthToken&&!!tiktokLiveData.user
-  if(connected&&!isLoading){
-    const user=tiktokLiveData.user,videos=tiktokLiveData.videos,byM=groupByMonth(videos),s=pState.tt
-    const av=user.avatar_url?`<img src="${escH(user.avatar_url)}" class="platform-avatar" alt="">`:`<div class="platform-avatar platform-avatar-placeholder" style="background:${c};width:48px;height:48px;border-radius:50%">TT</div>`
-    const err=tiktokLiveData.error?`<div class="platform-error-state">&#9888; ${escH(tiktokLiveData.error)}</div>`:''
-    const mc=s.mainTab==='trends'?renderTrendsTab('tt',videos,c):renderOverviewContent('tt',user,videos,c,false)
-    return`<div class="platform-section">${err}<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="data-badge-live" style="margin-left:0">&#9679; Live API</span><button class="refresh-btn" style="margin-left:auto;font-size:11px;padding:3px 9px" onclick="disconnectTikTok()">Disconnect</button></div><div class="platform-profile-card"><div class="platform-profile-left">${av}<div><div class="platform-display-name">${escH(user.display_name||'TikTok Account')}</div><div class="platform-handle">${videos.length} videos &middot; ${byM.length} month${byM.length!==1?'s':''} of data</div></div></div></div><div class="main-tabs"><button class="main-tab" data-tt-tab="overview" onclick="switchMainTab('tt','overview')" style="${s.mainTab==='overview'?`color:${c};border-bottom-color:${c}`:''}">Overview</button><button class="main-tab" data-tt-tab="trends" onclick="switchMainTab('tt','trends')" style="${s.mainTab==='trends'?`color:${c};border-bottom-color:${c}`:''}">&#128200; Trends</button></div><div id="tt-main-content">${mc}</div></div>`
-  }
-  const oBtn=isLoading?'':`<button class="platform-connect-btn" style="margin-left:auto" onclick="startTikTokOAuth()"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M34.1 7C33.3 10.4 30 13 26.5 13.2V19.8C29.3 19.6 31.8 18.6 33.8 17v10.3C33.8 33.8 28.6 39 22.1 39c-6.5 0-11.7-5.2-11.7-11.7 0-6.3 5-11.4 11.2-11.7v6.6c-2.8.3-5 2.6-5 5.2 0 2.9 2.3 5.2 5.2 5.2 3 0 5.5-2.5 5.5-5.5V7h6.8z" fill="white"/></svg>Connect TikTok</button>`
-  return`<div class="platform-section"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span>${oBtn}</div><div class="ag3">${metricCard('FOLLOWERS',d.followers,d.followers_change,d.weekly_data.followers,c,isLoading)}${metricCard('AVG VIEWS',d.avg_views,d.avg_views_change,d.weekly_data.views,c,isLoading)}${metricCard('VIDEOS POSTED',d.videos_this_week,d.videos_change,null,c,isLoading)}</div><div class="ag3" style="margin-bottom:14px">${metricCard('ENGAGEMENT RATE',d.engagement_rate+'%',d.engagement_change,null,c,isLoading)}</div>${goalsCard(d.goals,c)}</div>`
-}
-
-// ─── YOUTUBE BLOCK ────────────────────────────────────────────────
-function youtubeBlock(isLoading){
-  const cfg=PLATFORMS.youtube,d=analyticsData.platforms.youtube,c=cfg.color,connected=!!youtubeLiveData.channel
-  if(connected&&!isLoading){
-    const ch=youtubeLiveData.channel,videos=youtubeLiveData.videos,byM=groupByMonth(videos),s=pState.yt
-    const av=ch.avatar_url?`<img src="${escH(ch.avatar_url)}" class="platform-avatar" alt="">`:`<div class="platform-avatar platform-avatar-placeholder" style="background:${c};width:48px;height:48px;border-radius:50%">YT</div>`
-    const err=youtubeLiveData.error?`<div class="platform-error-state">&#9888; ${escH(youtubeLiveData.error)}</div>`:''
-    const mc=s.mainTab==='trends'?renderTrendsTab('yt',videos,c):renderOverviewContent('yt',ch,videos,c,true)
-    return`<div class="platform-section">${err}<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="data-badge-live" style="margin-left:0">&#9679; Live API</span></div><div class="platform-profile-card"><div class="platform-profile-left">${av}<div><div class="platform-display-name">${escH(ch.display_name||'YouTube Channel')}</div><div class="platform-handle">${videos.length} videos fetched &middot; ${byM.length} month${byM.length!==1?'s':''} of data</div></div></div></div><div class="main-tabs"><button class="main-tab" data-yt-tab="overview" onclick="switchMainTab('yt','overview')" style="${s.mainTab==='overview'?`color:${c};border-bottom-color:${c}`:''}">Overview</button><button class="main-tab" data-yt-tab="trends" onclick="switchMainTab('yt','trends')" style="${s.mainTab==='trends'?`color:${c};border-bottom-color:${c}`:''}">&#128200; Trends</button></div><div id="yt-main-content">${mc}</div></div>`
-  }
-  let sb=''
-  if(!isLoading){if(ytDataStatus==='live')sb='<span class="data-badge-live">&#9679; Live</span>';else if(ytDataStatus==='cached')sb='<span class="data-badge-cached">Using cached data</span>'}
-  return`<div class="platform-section"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span>${sb}</div><div class="ag3">${metricCard('SUBSCRIBERS',d.subscribers,d.subscribers_change,d.weekly_data.subscribers,c,isLoading)}${metricCard('AVG VIEWS',d.avg_views,d.avg_views_change,d.weekly_data.views,c,isLoading)}${metricCard('VIDEOS POSTED',d.videos_this_week,d.videos_change,null,c,isLoading)}</div><div class="ag3" style="margin-bottom:14px">${metricCard('ENGAGEMENT RATE',d.engagement_rate+'%',d.engagement_change,null,c,isLoading)}</div>${goalsCard(d.goals,c)}</div>`
-}
-
-// ─── INSTAGRAM BLOCK ──────────────────────────────────────────────
-function instagramBlock(isLoading){
-  const cfg=PLATFORMS.instagram,c=cfg.color
-  return`<div class="platform-section coming-soon-section" style="position:relative"><div class="coming-soon-overlay"></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div class="platform-badge">${platformIcon(cfg.name.toLowerCase())}</div><span style="font-size:17px;font-weight:700;color:var(--text)">${cfg.name}</span><span class="coming-soon-badge">Coming Soon</span></div><div class="ag3">${metricCard('FOLLOWERS','--',null,null,c,false)}${metricCard('AVG VIEWS','--',null,null,c,false)}${metricCard('REELS POSTED','--',null,null,c,false)}</div><div class="coming-soon-checklist"><div class="card-title" style="margin-bottom:8px">SETUP PROGRESS</div><div class="check-item done">&#9989; Meta Business Suite connected</div><div class="check-item done">&#9989; Facebook account setup</div><div class="check-item pending">&#11036; Developer app approval</div><div class="check-item pending">&#11036; API tokens generated</div><div class="check-item pending">&#11036; Live data connected</div></div></div>`
-}
-
-// ─── SOCIAL TOP CARD ──────────────────────────────────────────────
-function socialTopCard(isLoading){
-  const yt=analyticsData.platforms.youtube,tt=analyticsData.platforms.tiktok
-  const ytV=youtubeLiveData.channel?fmtNum(youtubeLiveData.channel.follower_count||youtubeLiveData.channel.subscriber_count||0):fmtNum(yt.subscribers)
-  const ttV=tiktokLiveData.user?fmtNum(tiktokLiveData.user.follower_count):fmtNum(tt.followers)
-  return`<div class="social-top-card"><div class="social-top-header"><span class="social-top-title">Social Media Overview</span><span class="last-refreshed" id="last-refreshed-inline">${lastRefreshedTime?'Updated '+lastRefreshedTime:''}</span></div><div class="social-platforms-row"><div class="social-platform-cell coming-soon-cell"><div class="social-cell-badge">${platformIcon('instagram',28)}</div><div><div class="social-cell-name">Instagram</div><div class="social-cell-val">--</div><div class="social-cell-sub">Coming Soon</div></div></div><div class="social-platform-cell"><div class="social-cell-badge">${platformIcon('youtube',28)}</div><div><div class="social-cell-name">YouTube</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ytV}</div><div class="social-cell-sub">subscribers${youtubeLiveData.channel?' &middot; live':''}</div></div></div><div class="social-platform-cell"><div class="social-cell-badge">${platformIcon('tiktok',28)}</div><div><div class="social-cell-name">TikTok</div><div class="social-cell-val">${isLoading?'<div class="skeleton" style="height:1.2rem;width:50px"></div>':ttV}</div><div class="social-cell-sub">followers${tiktokLiveData.user?' &middot; live':''}</div></div></div></div></div>`
-}
-
-// ─── COMPANY ONBOARDING ───────────────────────────────────────────
-function getCompanyName(){return localStorage.getItem('bma_company')||''}
-function setCompanyName(){const input=document.getElementById('company-name-input');if(!input)return;const name=(input.value||'').trim();if(!name){input.focus();return}localStorage.setItem('bma_company',name);renderDashboard(false)}
-function switchCompany(){localStorage.removeItem('bma_company');renderDashboard(false)}
-window.setCompanyName=setCompanyName
-window.switchCompany=switchCompany
-function renderCompanySection(){
-  const name=getCompanyName()
-  if(name)return`<div class="company-welcome"><span style="font-size:14px;font-weight:600;color:var(--text)">Welcome, <span style="color:var(--accent)">${escH(name)}</span></span><button onclick="switchCompany()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px">Switch company</button></div>`
-  return`<div class="company-onboard"><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px">Get started for your moving company</div><div style="font-size:12px;color:var(--text2);margin-bottom:14px">Enter your company name to personalise your analytics dashboard.</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="company-name-input" type="text" placeholder="Your moving company name" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')setCompanyName()"><button onclick="setCompanyName()" style="padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Continue</button></div></div>`
-}
-
-// ─── RENDER DASHBOARD ─────────────────────────────────────────────
-function renderDashboard(isLoading){
-  const d=analyticsData
-  document.getElementById('analytics-root').innerHTML=`
-    <div class="analytics-header">
-      <div><div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px">Social Media Analytics for Moving Companies</div><div style="font-size:13px;color:var(--text2)">Connect your TikTok account and track performance, video stats, and engagement &mdash; built for the moving industry.</div></div>
-      <div class="analytics-header-right"><span class="last-refreshed" id="last-refreshed-label">${lastRefreshedTime?'Last fetched: '+lastRefreshedTime:''}</span><button class="refresh-btn" onclick="refreshAnalytics()" id="refresh-btn"><span class="refresh-icon">&#8635;</span> Refresh</button></div>
+  <!-- NAV -->
+  <nav>
+    <a href="/MoverMetrics/" class="nav-brand">
+      <div class="logo-mark">MM</div>
+      <span class="nav-brand-name">MoverMetrics</span>
+    </a>
+    <div class="nav-actions">
+      <a href="/MoverMetrics/login/" class="btn btn-ghost">Log In</a>
+      <a href="/MoverMetrics/signup/" class="btn btn-primary">Sign Up Free</a>
     </div>
-    ${renderCompanySection()}
-    ${socialTopCard(isLoading)}
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title" style="margin-bottom:14px">PLATFORM BREAKDOWN</div>
-      ${youtubeBlock(isLoading)}
-      ${tiktokBlock(isLoading)}
-      ${instagramBlock(isLoading)}
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span>📊</span> Built for Moving Companies
+      </div>
+      <h1>Track Every View.<br><span>Close Every Lead.</span></h1>
+      <p class="hero-sub">Social Media Analytics for Moving Companies</p>
+      <p class="hero-desc">Connect your TikTok, Instagram, and YouTube accounts and track performance in one place — built for movers who rely on video to win jobs.</p>
+      <div class="hero-actions">
+        <a href="/MoverMetrics/signup/" class="btn btn-primary btn-lg">Sign Up Free</a>
+        <a href="/MoverMetrics/login/" class="btn btn-ghost btn-lg">Log In</a>
+      </div>
     </div>
-    <div class="metrics-grid" style="margin-bottom:28px">${summaryCfgCards()}</div>`
-}
-function summaryCfgCards(){
-  const d=analyticsData,ig=d.platforms.instagram,yt=d.platforms.youtube,tt=d.platforms.tiktok
-  const ytS=youtubeLiveData.channel?.follower_count??yt.subscribers,ttF=tiktokLiveData.user?.follower_count??tt.followers
-  const bp=[{name:'Instagram',eng:ig.engagement_rate},{name:'YouTube',eng:yt.engagement_rate},{name:'TikTok',eng:tt.engagement_rate}].reduce((a,b)=>b.eng>a.eng?b:a)
-  return[{label:'TOTAL FOLLOWERS',value:(ig.followers+ytS+ttF).toLocaleString(),sub:'all platforms combined',bc:'var(--accent)'},{label:'CONTENT PUBLISHED',value:String(ig.posts_this_week+yt.videos_this_week+tt.videos_this_week),sub:'posts this week',bc:'#1d4ed8'},{label:'BEST PLATFORM',value:bp.name,sub:bp.eng+'% engagement',bc:'#00C2A8'},{label:'WEEK',value:d.week_label,sub:'current review period',bc:'var(--amber)'}].map(c=>`<div class="summary-card" style="border-left:3px solid ${c.bc}"><div class="metric-label">${c.label}</div><div class="metric-val" style="margin-top:4px">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`).join('')
-}
-function updateLastRefreshed(){const now=new Date(),pht=new Date(now.getTime()+now.getTimezoneOffset()*60000+8*3600000);lastRefreshedTime=pht.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})+' PHT';const e1=document.getElementById('last-refreshed-label'),e2=document.getElementById('last-refreshed-inline');if(e1)e1.textContent='Last fetched: '+lastRefreshedTime;if(e2)e2.textContent='Updated '+lastRefreshedTime}
-function showLoadingState(){renderDashboard(true);const btn=document.getElementById('refresh-btn');if(btn)btn.classList.add('spinning')}
+  </section>
 
-// ─── TIKTOK OAUTH ─────────────────────────────────────────────────
-function startTikTokOAuth(){const state=crypto.randomUUID();sessionStorage.setItem('tt_state',state);const p=new URLSearchParams({client_key:TT_CLIENT_KEY,scope:'user.info.basic,user.info.stats,video.list',response_type:'code',redirect_uri:TT_REDIRECT_URI,state});window.location.href=`https://www.tiktok.com/v2/auth/authorize/?${p}`}
-window.startTikTokOAuth=startTikTokOAuth
-function disconnectTikTok(){localStorage.removeItem('tt_access_token');localStorage.removeItem('tt_state');ttOAuthToken=null;tiktokLiveData={user:null,videos:[],error:null};pState.tt={activeTab:'last5',mainTab:'overview',chartMetric:'views',chartRange:'all',videoPage:0,monthFilter:curMonth()};renderDashboard(false)}
-window.disconnectTikTok=disconnectTikTok
-async function exchangeTikTokCode(code){const r=await fetch(TT_TOKEN_PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,redirect_uri:TT_REDIRECT_URI})});if(!r.ok){const t=await r.text().catch(()=>r.statusText);throw new Error(`Token exchange failed (${r.status}): ${t}`)}const data=await r.json();if(data.error)throw new Error(`${data.error}: ${data.detail||''}`);return data}
-async function fetchTikTokUserInfo(token){const f='open_id,display_name,avatar_url,follower_count,following_count,likes_count,video_count',r=await fetch(`${TT_API_BASE}/user/info/?fields=${f}`,{headers:{Authorization:`Bearer ${token}`}});if(!r.ok)throw new Error(`User info failed (${r.status})`);return(await r.json()).data?.user||{}}
-async function fetchAllTikTokVideos(token){const f='id,title,video_description,cover_image_url,view_count,like_count,comment_count,create_time',h={Authorization:`Bearer ${token}`,'Content-Type':'application/json'};let all=[],cursor=0,hasMore=true;while(hasMore){const r=await fetch(`${TT_API_BASE}/video/list/?fields=${f}`,{method:'POST',headers:h,body:JSON.stringify({max_count:20,cursor})});if(!r.ok)throw new Error(`Video list failed (${r.status})`);const data=await r.json();if(data.error&&data.error.code!=='ok')throw new Error(data.error.message);const p=data.data?.videos||[];all=all.concat(p);hasMore=data.data?.has_more===true;cursor=data.data?.cursor||0;const el=document.getElementById('tt-loading-msg');if(el)el.textContent=`Loading TikTok analytics... ${all.length} videos`;if(!hasMore||!p.length)break}return all.sort((a,b)=>(b.create_time||0)-(a.create_time||0))}
-async function handleTikTokCallback(code){try{const td=await exchangeTikTokCode(code);if(!td.access_token)throw new Error('No access_token');const[user,vids]=await Promise.all([fetchTikTokUserInfo(td.access_token),fetchAllTikTokVideos(td.access_token)]);localStorage.setItem('tt_access_token',td.access_token);ttOAuthToken=td.access_token;updateFollowerHistory(user.follower_count);tiktokLiveData.user=user;tiktokLiveData.videos=vids;tiktokLiveData.error=null}catch(err){console.error('TikTok callback:',err);localStorage.removeItem('tt_access_token');ttOAuthToken=null;tiktokLiveData.error=err.message}}
-async function loadTikTokFromSession(){if(!ttOAuthToken)return;try{const[user,vids]=await Promise.all([fetchTikTokUserInfo(ttOAuthToken),fetchAllTikTokVideos(ttOAuthToken)]);updateFollowerHistory(user.follower_count);tiktokLiveData.user=user;tiktokLiveData.videos=vids;tiktokLiveData.error=null}catch(err){console.error('TikTok session:',err);localStorage.removeItem('tt_access_token');ttOAuthToken=null;tiktokLiveData.error=err.message}}
+  <!-- FEATURES -->
+  <section class="section">
+    <div class="section-inner">
+      <p class="section-label">Features</p>
+      <h2 class="section-title">Everything you need to grow</h2>
+      <p class="section-desc">Stop guessing which videos work. Get the data that drives decisions — all in one dashboard.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <h3 class="feature-title">TikTok Analytics</h3>
+          <p class="feature-desc">Track views, likes, and top videos across every post you've ever made. See exactly what content gets you booked.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🔗</span>
+          <h3 class="feature-title">All Platforms</h3>
+          <p class="feature-desc">Instagram and YouTube integrations coming soon — one dashboard for everything. Stop logging in to four apps to see your numbers.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🚚</span>
+          <h3 class="feature-title">Built for Movers</h3>
+          <p class="feature-desc">Designed specifically for moving companies using video to attract and convert leads. No fluff, no generic marketing speak.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-// ─── YOUTUBE API ──────────────────────────────────────────────────
-async function fetchYouTubeData(){
-  if(!YOUTUBE_API_KEY||YOUTUBE_API_KEY.startsWith('%%'))return{success:false}
-  try{
-    // Fetch channel info + uploads playlist ID in one call
-    const chRes=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet,contentDetails&id=${YOUTUBE_CHANNEL_ID}&key=${YOUTUBE_API_KEY}`)
-    const chData=await chRes.json()
-    if(!chData.items?.length)throw new Error('Channel not found')
-    const ch=chData.items[0]
-    const uploadsId=ch.contentDetails.relatedPlaylists.uploads
+  <!-- HOW IT WORKS -->
+  <section class="how-section">
+    <div class="section-inner">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">Up and running in minutes</h2>
+      <p class="section-desc">No complicated setup. No developer needed. Just connect your accounts and start seeing results.</p>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Create your account</h3>
+          <p class="step-desc">Sign up in seconds with just your email address. No credit card required to get started.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Connect your social platforms</h3>
+          <p class="step-desc">Link your TikTok account and we'll pull in all your video performance data automatically.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Track performance and optimize</h3>
+          <p class="step-desc">See your top videos, growth trends, and which content drives the most engagement and leads.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    // Page through the uploads playlist to get ALL video IDs (50 per page, quota: 1 unit/page)
-    let allIds=[],pageToken=''
-    do{
-      const url=`https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId=${uploadsId}&maxResults=50&key=${YOUTUBE_API_KEY}${pageToken?'&pageToken='+pageToken:''}`
-      const r=await fetch(url),data=await r.json()
-      ;(data.items||[]).forEach(i=>allIds.push(i.contentDetails.videoId))
-      pageToken=data.nextPageToken||''
-    }while(pageToken)
+  <!-- CTA SECTION -->
+  <section class="cta-section">
+    <div class="cta-box">
+      <h2>Ready to grow faster?</h2>
+      <p>Join moving companies already tracking their social media performance with MoverMetrics.</p>
+      <a href="/MoverMetrics/signup/" class="btn btn-primary btn-lg">Get Started for Free</a>
+    </div>
+  </section>
 
-    // Fetch stats in batches of 50 (quota: 1 unit/batch)
-    let videos=[]
-    for(let i=0;i<allIds.length;i+=50){
-      const batch=allIds.slice(i,i+50).join(',')
-      const vRes=await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${batch}&key=${YOUTUBE_API_KEY}`)
-      const vData=await vRes.json()
-      ;(vData.items||[]).forEach(v=>videos.push({
-        id:v.id,title:v.snippet.title,
-        cover_image_url:v.snippet.thumbnails?.medium?.url||v.snippet.thumbnails?.default?.url||null,
-        view_count:parseInt(v.statistics.viewCount||0),
-        like_count:parseInt(v.statistics.likeCount||0),
-        comment_count:parseInt(v.statistics.commentCount||0),
-        create_time:Math.floor(new Date(v.snippet.publishedAt).getTime()/1000)
-      }))
-    }
-    videos.sort((a,b)=>b.create_time-a.create_time)
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 MoverMetrics</span>
+    <span class="footer-sep">|</span>
+    <a href="/MoverMetrics/terms/">Terms of Service</a>
+    <span class="footer-sep">|</span>
+    <a href="/MoverMetrics/privacy/">Privacy Policy</a>
+  </footer>
 
-    const sa=Date.now()/1000-7*86400,rc=videos.filter(v=>v.create_time>sa)
-    const tv=rc.reduce((s,v)=>s+v.view_count,0),tl=rc.reduce((s,v)=>s+v.like_count,0),tc=rc.reduce((s,v)=>s+v.comment_count,0)
-    const channel={display_name:ch.snippet.title,avatar_url:ch.snippet.thumbnails?.default?.url||null,follower_count:parseInt(ch.statistics.subscriberCount||0),subscriber_count:parseInt(ch.statistics.subscriberCount||0),video_count:parseInt(ch.statistics.videoCount||0),view_count:parseInt(ch.statistics.viewCount||0)}
-    return{success:true,channel,videos,subscribers:channel.follower_count,avg_views:rc.length?Math.round(tv/rc.length):0,videos_this_week:rc.length,engagement_rate:tv>0?parseFloat(((tl+tc)/tv*100).toFixed(1)):0}
-  }catch(err){console.error('YouTube API:',err);return{success:false,error:err.message}}
-}
-async function applyYouTubeData(data){
-  if(data.success){
-    analyticsData.platforms.youtube.subscribers=data.subscribers
-    analyticsData.platforms.youtube.avg_views=data.avg_views
-    analyticsData.platforms.youtube.videos_this_week=data.videos_this_week
-    analyticsData.platforms.youtube.engagement_rate=data.engagement_rate
-    youtubeLiveData.channel=data.channel
-    youtubeLiveData.videos=data.videos
-    ytDataStatus='live'
-  } else { ytDataStatus='cached' }
-}
-async function refreshAnalytics(){
-  if(ttOAuthToken)await loadTikTokFromSession()
-  showLoadingState()
-  await applyYouTubeData(await fetchYouTubeData())
-  if(ttOAuthToken&&tiktokLiveData.user?.follower_count!=null)analyticsData.platforms.tiktok.followers=tiktokLiveData.user.follower_count
-  renderDashboard(false);updateLastRefreshed()
-}
-window.refreshAnalytics=refreshAnalytics
-
-// ─── BOOT ─────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded',async()=>{
-  renderDashboard(true)
-  const urlP=new URLSearchParams(window.location.search),ttCode=urlP.get('code')
-  if(ttCode){
-    history.replaceState({},'',window.location.pathname)
-    document.getElementById('analytics-root').innerHTML=`<div class="loader-wrap"><div class="loader-spinner"></div><div class="loader-msg" id="tt-loading-msg">Connecting to TikTok...</div><div class="loader-sub">Fetching all videos &mdash; this may take a moment</div></div>`
-    await handleTikTokCallback(ttCode)
-  } else if(ttOAuthToken){
-    await loadTikTokFromSession()
-  }
-  showLoadingState()
-  await applyYouTubeData(await fetchYouTubeData())
-  if(ttOAuthToken&&tiktokLiveData.user?.follower_count!=null)analyticsData.platforms.tiktok.followers=tiktokLiveData.user.follower_count
-  renderDashboard(false);updateLastRefreshed()
-})
-</script>
 </body>
 </html>
