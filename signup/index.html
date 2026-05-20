@@ -340,7 +340,13 @@
       submitBtn.textContent = 'Creating account...'
 
       try {
-        const { data, error } = await supabase.auth.signUp({ email, password })
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: 'https://anthonyyybm.github.io/MoverMetrics/login/'
+          }
+        })
 
         if (error) {
           showError(error.message)
@@ -354,7 +360,7 @@
         }
 
         // Confirmation email sent
-        showSuccess(`Check your email! We sent a confirmation link to ${email}.`)
+        showSuccess(`Check your email! We sent a confirmation link to ${email}. Click the link, then come back to log in.`)
         form.reset()
 
       } catch (err) {

@@ -316,6 +316,13 @@
       errorMsg.classList.remove('visible')
     }
 
+    // Listen for auth state changes — catches sessions arriving via email confirmation link
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        window.location.replace('/MoverMetrics/dashboard/')
+      }
+    })
+
     // Check for existing session on page load
     ;(async () => {
       try {
@@ -352,7 +359,14 @@
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
         if (error) {
-          showError(error.message)
+          const msg = error.message || ''
+          if (msg.toLowerCase().includes('not confirmed')) {
+            showError('Your email isn\'t confirmed yet. Check your inbox for the confirmation link, then try again.')
+          } else if (msg.toLowerCase().includes('invalid login')) {
+            showError('Incorrect email or password. If you just signed up, confirm your email first.')
+          } else {
+            showError(msg)
+          }
           return
         }
 
